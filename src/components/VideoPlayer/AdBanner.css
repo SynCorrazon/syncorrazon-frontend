@@ -1,0 +1,82 @@
+/* src/components/VideoPlayer/AdBanner.css */
+
+.ad-banner {
+  width: 100%;
+  padding: 8px 16px;
+  background-color: #16213E;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.ad-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
+
+.ad-banner-label {
+  background-color: rgba(0, 210, 255, 0.1);
+  color: #00D2FF;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.ad-banner-text {
+  color: #A8A8B3;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ad-banner {
+    padding: 6px 12px;
+    min-height: 40px;
+  }
+
+  .ad-banner-content {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .ad-banner-label {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .ad-banner-text {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ad-banner {
+    padding: 4px 8px;
+    min-height: 32px;
+    border-radius: 4px;
+  }
+
+  .ad-banner-content {
+    font-size: 10px;
+    gap: 6px;
+  }
+
+  .ad-banner-label {
+    font-size: 9px;
+    padding: 1px 6px;
+  }
+
+  .ad-banner-text {
+    font-size: 10px;
+  }
+}

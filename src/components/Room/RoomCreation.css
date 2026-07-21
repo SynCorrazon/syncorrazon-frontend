@@ -1,0 +1,220 @@
+/* src/components/Room/RoomCreation.css */
+
+.room-creation-container {
+  min-height: 100vh;
+  background-color: #1A1A2E;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-creation-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.room-creation-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.room-creation-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 8px 0;
+}
+
+.room-creation-subtitle {
+  font-size: 16px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.room-creation-card {
+  background-color: #16213E;
+  border-radius: 16px;
+  padding: 40px 32px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(0, 210, 255, 0.06);
+  transition: border-color 0.3s ease;
+}
+
+.room-creation-card:hover {
+  border-color: rgba(0, 210, 255, 0.15);
+}
+
+.room-creation-initial {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.room-creation-text {
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.room-creation-btn {
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.room-creation-btn-create {
+  background-color: #00D2FF;
+  color: #1A1A2E;
+  font-size: 18px;
+  padding: 16px 40px;
+}
+
+.room-creation-btn-create:hover {
+  background-color: #00b8e6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 210, 255, 0.2);
+}
+
+.room-creation-ready {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.room-creation-code-container {
+  background-color: rgba(0, 210, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid rgba(0, 210, 255, 0.15);
+}
+
+.room-creation-code-label {
+  font-size: 14px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 8px;
+}
+
+.room-creation-code {
+  font-size: 48px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  color: #00D2FF;
+  letter-spacing: 8px;
+  text-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
+}
+
+.room-creation-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.room-creation-btn-join {
+  background-color: #00FF88;
+  color: #1A1A2E;
+}
+
+.room-creation-btn-join:hover {
+  background-color: #00e677;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 255, 136, 0.2);
+}
+
+.room-creation-btn-copy {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.room-creation-btn-copy:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.room-creation-hint {
+  font-size: 14px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.room-creation-footer {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.room-creation-footer-text {
+  font-size: 14px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .room-creation-content {
+    padding: 24px 16px;
+  }
+
+  .room-creation-header h1 {
+    font-size: 24px;
+  }
+
+  .room-creation-card {
+    padding: 24px 20px;
+  }
+
+  .room-creation-code {
+    font-size: 32px;
+    letter-spacing: 4px;
+  }
+
+  .room-creation-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .room-creation-btn-create {
+    font-size: 16px;
+    padding: 14px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-creation-card {
+    padding: 20px 16px;
+  }
+
+  .room-creation-code {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .room-creation-header h1 {
+    font-size: 20px;
+  }
+
+  .room-creation-text {
+    font-size: 14px;
+  }
+
+  .room-creation-btn {
+    font-size: 12px;
+    padding: 10px 20px;
+  }
+}

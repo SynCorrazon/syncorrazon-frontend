@@ -1,0 +1,146 @@
+/* src/components/VideoPlayer/SyncStatus.css */
+
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 20px;
+  background-color: rgba(22, 33, 62, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  user-select: none;
+  pointer-events: none;
+}
+
+.sync-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease;
+}
+
+.sync-status-text {
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Status-specific styles – animations */
+
+/* Green – solid, calm */
+.sync-status-green .sync-status-dot {
+  animation: none;
+}
+
+/* Yellow – gentle pulse (flashing) */
+.sync-status-yellow .sync-status-dot {
+  animation: pulse-yellow 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-yellow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+
+/* Orange – stronger pulse (pulsing) */
+.sync-status-orange .sync-status-dot {
+  animation: pulse-orange 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-orange {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+}
+
+/* Red – fast flash + text warning */
+.sync-status-red .sync-status-dot {
+  animation: flash-red 0.6s ease-in-out infinite;
+}
+
+@keyframes flash-red {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(0.6);
+  }
+}
+
+/* Red status also has a subtle border glow */
+.sync-status-red {
+  border-color: rgba(255, 0, 68, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 0, 68, 0.15);
+}
+
+.sync-status-orange {
+  border-color: rgba(255, 107, 53, 0.2);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.1);
+}
+
+.sync-status-yellow {
+  border-color: rgba(255, 215, 0, 0.15);
+}
+
+.sync-status-green {
+  border-color: rgba(0, 255, 136, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .sync-status {
+    padding: 4px 12px 4px 8px;
+    font-size: 10px;
+    gap: 6px;
+  }
+
+  .sync-status-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .sync-status-text {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sync-status {
+    padding: 3px 10px 3px 6px;
+    font-size: 9px;
+    gap: 4px;
+  }
+
+  .sync-status-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .sync-status-text {
+    font-size: 9px;
+  }
+}

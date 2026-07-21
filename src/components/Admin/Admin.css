@@ -1,0 +1,447 @@
+/* src/components/Admin/Admin.css */
+
+/* ----- Admin Panel (Main) ----- */
+.admin-panel {
+  min-height: 100vh;
+  background-color: #1A1A2E;
+  padding: 24px;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 16px;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.admin-subtitle {
+  font-size: 14px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  margin: 4px 0 0 0;
+}
+
+/* ----- Tabs ----- */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.admin-tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-tab:hover {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-tab.active {
+  color: #FFFFFF;
+  background-color: rgba(0, 210, 255, 0.1);
+  border-bottom: 2px solid #00D2FF;
+}
+
+/* ----- Admin Section ----- */
+.admin-section {
+  background-color: #16213E;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 16px 0;
+}
+
+/* ----- Forms ----- */
+.admin-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-form-group {
+  flex: 1;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-input:focus {
+  border-color: #00D2FF;
+}
+
+.admin-btn-primary {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  background-color: #00D2FF;
+  color: #1A1A2E;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-btn-primary:hover:not(:disabled) {
+  background-color: #00b8e6;
+}
+
+.admin-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ----- Admin List ----- */
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-list-content {
+  flex: 1;
+}
+
+.admin-list-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #FFFFFF;
+  margin: 2px 0;
+}
+
+.admin-list-text strong {
+  color: #00D2FF;
+}
+
+.admin-list-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ----- Badges ----- */
+.admin-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+}
+
+.admin-badge-active {
+  background-color: rgba(0, 255, 136, 0.15);
+  color: #00FF88;
+}
+
+.admin-badge-inactive {
+  background-color: rgba(255, 0, 68, 0.15);
+  color: #FF0044;
+}
+
+.admin-badge-pending {
+  background-color: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}
+
+/* ----- Buttons (Admin) ----- */
+.admin-btn-sm {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-approve {
+  background-color: rgba(0, 255, 136, 0.15);
+  color: #00FF88;
+}
+
+.admin-btn-approve:hover {
+  background-color: rgba(0, 255, 136, 0.25);
+}
+
+.admin-btn-reject {
+  background-color: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}
+
+.admin-btn-reject:hover {
+  background-color: rgba(255, 215, 0, 0.25);
+}
+
+.admin-btn-delete {
+  background-color: rgba(255, 0, 68, 0.15);
+  color: #FF0044;
+}
+
+.admin-btn-delete:hover {
+  background-color: rgba(255, 0, 68, 0.25);
+}
+
+.admin-btn-toggle {
+  background-color: rgba(0, 210, 255, 0.15);
+  color: #00D2FF;
+}
+
+.admin-btn-toggle:hover {
+  background-color: rgba(0, 210, 255, 0.25);
+}
+
+/* ----- Filters ----- */
+.admin-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-filter label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #A8A8B3;
+}
+
+.admin-filter-btn {
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: none;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-filter-btn:hover {
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.admin-filter-btn.active {
+  background-color: rgba(0, 210, 255, 0.1);
+  color: #00D2FF;
+  border-color: rgba(0, 210, 255, 0.2);
+}
+
+/* ----- Empty State ----- */
+.admin-empty {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #A8A8B3;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ----- Logo Manager ----- */
+.admin-logo-display {
+  margin-bottom: 16px;
+}
+
+.admin-logo-preview {
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-logo-img {
+  max-width: 200px;
+  max-height: 100px;
+  object-fit: contain;
+}
+
+.admin-logo-upload {
+  margin-top: 16px;
+}
+
+.admin-logo-upload h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  color: #FFFFFF;
+  margin: 0 0 4px 0;
+}
+
+.admin-hint {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #A8A8B3;
+  margin: 0 0 12px 0;
+}
+
+.admin-logo-upload input[type="file"] {
+  margin-bottom: 12px;
+  color: #FFFFFF;
+}
+
+/* ----- Admin Auth (Login) ----- */
+.admin-auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #1A1A2E;
+}
+
+.admin-auth-card {
+  background-color: #16213E;
+  border-radius: 16px;
+  padding: 40px 48px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(0, 210, 255, 0.08);
+}
+
+.admin-auth-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 8px 0;
+}
+
+.admin-auth-subtitle {
+  font-size: 14px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 24px 0;
+}
+
+.admin-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-auth-input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-auth-input:focus {
+  border-color: #00D2FF;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
+}
+
+.admin-auth-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: #00D2FF;
+  color: #1A1A2E;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-auth-btn:hover {
+  background-color: #00b8e6;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 16px;
+  }
+
+  .admin-header h1 {
+    font-size: 22px;
+  }
+
+  .admin-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .admin-tab {
+    font-size: 13px;
+    padding: 8px 16px;
+    white-space: nowrap;
+  }
+
+  .admin-section {
+    padding: 16px;
+  }
+
+  .admin-form {
+    flex-direction: column;
+  }
+
+  .admin-list-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-list-actions {
+    justify-content: flex-start;
+  }
+
+  .admin-auth-card {
+    padding: 24px 20px;
+  }
+}

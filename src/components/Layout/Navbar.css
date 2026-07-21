@@ -1,0 +1,105 @@
+/* src/components/Layout/Navbar.css */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background-color: #16213E;
+  border-bottom: 1px solid rgba(0, 210, 255, 0.1);
+  min-height: 64px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-room-code {
+  color: #A8A8B3;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  background-color: rgba(0, 210, 255, 0.08);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 210, 255, 0.15);
+}
+
+.navbar-button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-invite-btn {
+  background-color: #00D2FF;
+  color: #1A1A2E;
+  border: none;
+}
+
+.navbar-invite-btn:hover {
+  background-color: #00b8e6;
+  transform: translateY(-1px);
+}
+
+.navbar-leave-btn {
+  background-color: transparent;
+  color: #FF0044;
+  border: 1px solid #FF0044;
+}
+
+.navbar-leave-btn:hover {
+  background-color: rgba(255, 0, 68, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 16px;
+    min-height: 56px;
+  }
+
+  .navbar-room-code {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .navbar-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .navbar-right {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 8px 12px;
+    min-height: 48px;
+  }
+
+  .navbar-room-code {
+    display: none;
+  }
+
+  .navbar-button {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+}

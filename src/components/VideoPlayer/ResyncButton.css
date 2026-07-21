@@ -1,0 +1,98 @@
+/* src/components/VideoPlayer/ResyncButton.css */
+
+.resync-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.resync-button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(0, 210, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.resync-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.resync-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.resync-button-disabled {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.resync-button-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resync-button-icon {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.resync-button:not(:disabled):hover .resync-button-icon {
+  transform: rotate(180deg);
+}
+
+.resync-button-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: pulse-text 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .resync-button {
+    padding: 8px 16px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .resync-button-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resync-button {
+    padding: 6px 12px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .resync-button-icon {
+    width: 12px;
+    height: 12px;
+  }
+}

@@ -1,0 +1,220 @@
+/* src/components/VideoPlayer/VideoPlayer.css */
+
+/*
+  INSTRUCTIONS FOR ME (CHISOM):
+  1. This is the shared styles for the VideoPlayer page.
+  2. It follows the dark theme (Deep Indigo background, Neon Cyan accents).
+  3. It's responsive and works on all screen sizes.
+  4. It covers: layout, YouTube player, sync status, controls, chat, and connection status.
+*/
+
+/* Container */
+.video-player-container {
+  min-height: 100vh;
+  background-color: #1A1A2E;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content – main layout */
+.video-player-content {
+  flex: 1;
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  height: calc(100vh - 64px);
+}
+
+/* Left section – YouTube player (70%) */
+.video-player-left {
+  flex: 0 0 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.video-player-wrapper {
+  flex: 1;
+  position: relative;
+  background-color: #000000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16/9;
+}
+
+.youtube-player {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sync Status positioned above player */
+.video-player-wrapper .sync-status {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* Video controls */
+.video-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.video-url-input {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.url-input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease;
+}
+
+.url-input:focus {
+  border-color: #00D2FF;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
+}
+
+.url-input::placeholder {
+  color: #A8A8B3;
+}
+
+.load-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background-color: #00D2FF;
+  color: #1A1A2E;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.load-btn:hover {
+  background-color: #00b8e6;
+  transform: translateY(-1px);
+}
+
+/* Right section – Chat (30%) */
+.video-player-right {
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Connection status indicator */
+.connection-status {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  background-color: #16213E;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+}
+
+.connection-status.connected {
+  color: #00FF88;
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.connection-status.disconnected {
+  color: #FF0044;
+  border-color: rgba(255, 0, 68, 0.2);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .video-player-content {
+    flex-direction: column;
+    height: auto;
+    padding: 16px;
+  }
+
+  .video-player-left {
+    flex: 1;
+    width: 100%;
+  }
+
+  .video-player-right {
+    max-width: 100%;
+    height: 200px;
+  }
+
+  .video-player-wrapper {
+    aspect-ratio: 16/9;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-player-content {
+    padding: 12px;
+  }
+
+  .video-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .video-url-input {
+    min-width: unset;
+  }
+
+  .video-player-right {
+    height: 150px;
+  }
+
+  .connection-status {
+    bottom: 12px;
+    padding: 4px 12px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-player-content {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .video-player-wrapper {
+    border-radius: 8px;
+  }
+
+  .video-player-right {
+    height: 120px;
+  }
+
+  .url-input {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .load-btn {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+}

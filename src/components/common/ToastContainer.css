@@ -1,0 +1,76 @@
+/* src/components/common/ToastContainer.css */
+
+/* Container – fixed at bottom-right corner */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+  max-width: 360px;
+  width: 100%;
+  pointer-events: none; /* Allows clicks to pass through the container */
+}
+
+/* Individual toast */
+.toast {
+  padding: 14px 20px;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: slideInRight 0.3s ease-out;
+  pointer-events: auto; /* Clickable to dismiss */
+  cursor: default;
+  backdrop-filter: blur(8px);
+  border-left: 4px solid transparent;
+}
+
+/* Toast types */
+.toast-success {
+  background: rgba(0, 255, 136, 0.15);
+  border-left-color: #00FF88;
+  color: #00FF88;
+}
+
+.toast-error {
+  background: rgba(255, 0, 68, 0.15);
+  border-left-color: #FF0044;
+  color: #FF0044;
+}
+
+.toast-info {
+  background: rgba(0, 210, 255, 0.15);
+  border-left-color: #00D2FF;
+  color: #00D2FF;
+}
+
+.toast-warning {
+  background: rgba(255, 215, 0, 0.15);
+  border-left-color: #FFD700;
+  color: #FFD700;
+}
+
+/* Slide-in animation */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .toast-container {
+    bottom: 16px;
+    right: 16px;
+    max-width: calc(100% - 32px);
+  }
+}

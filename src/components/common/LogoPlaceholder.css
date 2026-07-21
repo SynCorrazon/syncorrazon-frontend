@@ -1,0 +1,31 @@
+/* src/components/common/LogoPlaceholder.css */
+
+.logo-placeholder {
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  user-select: none;
+}
+
+.logo-text {
+  color: #FFFFFF;
+}
+
+.logo-highlight {
+  color: #00D2FF;
+}
+
+/* Make it clickable if needed */
+.logo-placeholder {
+  cursor: pointer;
+}
+
+/* Smaller version for mobile */
+@media (max-width: 768px) {
+  .logo-placeholder {
+    font-size: 16px;
+  }
+}

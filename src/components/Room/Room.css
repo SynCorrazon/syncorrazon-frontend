@@ -1,0 +1,14 @@
+/* src/components/Room/Room.css */
+
+.room-container {
+  min-height: 100vh;
+  background-color: #1A1A2E;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utility class if needed */
+.room-container .room-lobby-container,
+.room-container .room-creation-container {
+  min-height: 100vh;
+}
