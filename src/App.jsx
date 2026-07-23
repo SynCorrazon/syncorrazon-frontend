@@ -1,17 +1,17 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
-// Auth pages
+// Public pages
+import LandingPage from './components/Landing/LandingPage';
 import Login from './components/Auth/Login';
 import Signup from './components/Auth/Signup';
 
-// Room pages
+// Protected pages
 import RoomLobby from './components/Room/RoomLobby';
 import RoomCreation from './components/Room/RoomCreation';
-
-// Video Player
 import VideoPlayer from './components/VideoPlayer/VideoPlayer';
 
 // 404
@@ -22,12 +22,12 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Login />} />
+          {/* Public routes – anyone can see these */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes (require authentication) */}
+          {/* Protected routes – require authentication */}
           <Route
             path="/lobby"
             element={
