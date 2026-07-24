@@ -14,7 +14,7 @@ const LandingPage = () => {
         </p>
         <div className="landing-buttons">
           <Link to="/login" className="landing-btn landing-btn-primary">
-            Get Started
+            Continue
           </Link>
           <Link to="/signup" className="landing-btn landing-btn-secondary">
             Create Account
