@@ -213,3 +213,37 @@
     font-size: 13px;
   }
 }
+
+/* Add to src/styles/global.css */
+
+/* Smoother transitions */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Better buttons */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 210, 255, 0.15);
+}
+
+/* Better inputs */
+input, textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: #00D2FF;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.08);
+}
+
+/* Subtle glass effect for cards */
+.glass {
+  background: rgba(22, 33, 62, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}

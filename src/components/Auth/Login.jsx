@@ -1,15 +1,5 @@
 // src/components/Auth/Login.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the Login page – users see it when they first visit the app.
-  2. It has email/password login and Google Sign-In.
-  3. It uses useAuth() from AuthContext to call login() and loginWithGoogle().
-  4. It uses useToast() to show success/error messages.
-  5. After successful login, users are redirected to /lobby.
-  6. If a user is already logged in, they're redirected to /lobby automatically.
-*/
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,7 +15,6 @@ const Login = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (currentUser) {
       navigate('/lobby');
@@ -41,9 +30,25 @@ const Login = () => {
 
     setLoading(true);
     try {
-      await login(email, password);
-      toast.success('Welcome back! 🎉');
-      navigate('/lobby');
+      const userCredential = await login(email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        toast.success('Welcome back! 🎉');
+        navigate('/lobby');
+      } else {
+        toast.error(data.message || 'Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error.message || 'Failed to log in. Please check your credentials.');
@@ -55,9 +60,25 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      await loginWithGoogle();
-      toast.success('Welcome back! 🎉');
-      navigate('/lobby');
+      const result = await loginWithGoogle();
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        toast.success('Welcome back! 🎉');
+        navigate('/lobby');
+      } else {
+        toast.error(data.message || 'Google login failed');
+      }
     } catch (error) {
       console.error('Google login error:', error);
       toast.error(error.message || 'Failed to sign in with Google.');

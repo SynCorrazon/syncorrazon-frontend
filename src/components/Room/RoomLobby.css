@@ -204,3 +204,23 @@
     padding: 10px 14px;
   }
 }
+
+/* Add to src/components/Room/RoomLobby.css */
+
+.room-card {
+  transition: all 0.3s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(0, 210, 255, 0.25);
+}
+
+.room-card-icon {
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover .room-card-icon {
+  transform: scale(1.1);
+}

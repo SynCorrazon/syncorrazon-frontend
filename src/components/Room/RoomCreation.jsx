@@ -1,24 +1,15 @@
 // src/components/Room/RoomCreation.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the standalone room creation page – users can create a room here.
-  2. It generates a 6-character room code and navigates to the Video Player.
-  3. It uses useAuth() to get the current user.
-  4. It uses useToast() for feedback messages.
-  5. It has a nice animated UI with a room code display and copy link button.
-*/
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import Navbar from '../Layout/Navbar';
 import Loader from '../common/Loader';
-import { generateRoomCode } from '../../utils/roomCode';
 import './RoomCreation.css';
 
 const RoomCreation = () => {
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -26,16 +17,40 @@ const RoomCreation = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
+    if (!youtubeUrl) {
+      toast.error('Please paste a YouTube URL');
+      return;
+    }
+
     setLoading(true);
     try {
-      const code = generateRoomCode();
-      setRoomCode(code);
-      toast.success(`Room created! Code: ${code}`);
-      // Navigate to the video player with the room code
-      setTimeout(() => {
-        navigate(`/room/${code}`);
-      }, 500);
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please log in again');
+        return;
+      }
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/rooms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ videoUrl: youtubeUrl }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setRoomCode(data.data.roomCode);
+        toast.success(`Room created! Code: ${data.data.roomCode}`);
+        setTimeout(() => {
+          navigate(`/room/${data.data.roomCode}`);
+        }, 500);
+      } else {
+        toast.error(data.message || 'Failed to create room');
+      }
     } catch (error) {
       console.error('Create room error:', error);
       toast.error('Failed to create room. Please try again.');
@@ -78,15 +93,25 @@ const RoomCreation = () => {
           {!roomCode ? (
             <div className="room-creation-initial">
               <p className="room-creation-text">
-                Click the button below to create a new room. You'll get a unique
-                6-character code to share with your partner.
+                Paste a YouTube URL to start watching together.
               </p>
-              <button
-                className="room-creation-btn room-creation-btn-create"
-                onClick={handleCreateRoom}
-              >
-                Create Room
-              </button>
+              <div className="room-creation-url-input">
+                <input
+                  type="text"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  value={youtubeUrl}
+                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  className="url-input-field"
+                  disabled={loading}
+                />
+                <button
+                  className="room-creation-btn room-creation-btn-create"
+                  onClick={handleCreateRoom}
+                  disabled={loading}
+                >
+                  {loading ? 'Creating...' : 'Create Room'}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="room-creation-ready">

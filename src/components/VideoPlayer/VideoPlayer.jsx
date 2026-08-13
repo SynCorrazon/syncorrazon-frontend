@@ -1,19 +1,5 @@
 // src/components/VideoPlayer/VideoPlayer.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the heart of SynCorrazon – the Video Player page.
-  2. It loads the YouTube player, syncs playback between two users, and shows chat.
-  3. It uses:
-     - useParams() to get the room code from the URL.
-     - useWebRTC() hook for P2P connection and sync commands.
-     - useHeartbeat() hook for 500ms drift detection and correction.
-     - useAuth() for the current user.
-     - useToast() for notifications.
-  4. It has: YouTube player, sync status indicator, resync button, chat overlay, ad banner.
-  5. The layout follows the design spec: YouTube centre-left (70%), chat bottom-right.
-*/
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -35,16 +21,13 @@ const VideoPlayer = () => {
   const { currentUser } = useAuth();
   const toast = useToast();
 
-  // YouTube player ref
   const playerRef = useRef(null);
   const playerContainerRef = useRef(null);
 
-  // Local state
   const [videoUrl, setVideoUrl] = useState('');
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // WebRTC hook – handles P2P connection and sync commands
   const {
     isConnected,
     peerId,
@@ -55,7 +38,6 @@ const VideoPlayer = () => {
     isLeader,
   } = useWebRTC(roomId, currentUser);
 
-  // Heartbeat hook – handles 500ms drift detection and correction
   const {
     drift,
     syncStatus,
@@ -74,6 +56,42 @@ const VideoPlayer = () => {
       orange: 5,
     },
   });
+
+  // Fetch room info from backend
+  useEffect(() => {
+    const fetchRoomInfo = async () => {
+      if (!roomId) return;
+
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please log in again');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/rooms/${roomId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setVideoUrl(data.data.videoUrl);
+        } else {
+          toast.error(data.message || 'Failed to load room');
+        }
+      } catch (error) {
+        console.error('Error fetching room:', error);
+        toast.error('Failed to load room info');
+      }
+    };
+
+    fetchRoomInfo();
+  }, [roomId, toast]);
 
   // Initialize YouTube player
   useEffect(() => {
@@ -97,17 +115,10 @@ const VideoPlayer = () => {
             toast.info('YouTube player ready! 🎬');
           },
           onStateChange: (event) => {
-            // Handle player state changes (play, pause, seek)
-            if (event.data === 1) {
-              // Playing
-              if (isLeader && isConnected) {
-                sendCommand({ type: 'play', timestamp: playerControls.getCurrentTime(player) });
-              }
-            } else if (event.data === 2) {
-              // Paused
-              if (isLeader && isConnected) {
-                sendCommand({ type: 'pause', timestamp: playerControls.getCurrentTime(player) });
-              }
+            if (event.data === 1 && isLeader && isConnected) {
+              sendCommand({ type: 'play', timestamp: playerControls.getCurrentTime(player) });
+            } else if (event.data === 2 && isLeader && isConnected) {
+              sendCommand({ type: 'pause', timestamp: playerControls.getCurrentTime(player) });
             }
           },
           onError: (error) => {
@@ -125,7 +136,6 @@ const VideoPlayer = () => {
 
     initPlayer();
 
-    // Cleanup on unmount
     return () => {
       if (playerRef.current) {
         playerControls.destroy(playerRef.current);
@@ -133,7 +143,17 @@ const VideoPlayer = () => {
     };
   }, []);
 
-  // Join room when player is ready and user is authenticated
+  // Load video when URL changes
+  useEffect(() => {
+    if (isPlayerReady && playerRef.current && videoUrl) {
+      const videoId = extractVideoId(videoUrl);
+      if (videoId) {
+        playerControls.loadVideoById(playerRef.current, videoId);
+      }
+    }
+  }, [videoUrl, isPlayerReady]);
+
+  // Join room when player is ready
   useEffect(() => {
     if (isPlayerReady && currentUser && roomId) {
       joinRoom();
@@ -149,7 +169,7 @@ const VideoPlayer = () => {
     }
   }, [isConnected, isPlayerReady, startHeartbeat, stopHeartbeat]);
 
-  // Listen for incoming commands from peer
+  // Listen for incoming commands
   useEffect(() => {
     if (!isConnected) return;
 
@@ -166,45 +186,15 @@ const VideoPlayer = () => {
         case 'seek':
           playerControls.seekTo(playerRef.current, command.timestamp);
           break;
-        case 'heartbeat':
-          // Handled by useHeartbeat hook
-          break;
         default:
-          console.warn('Unknown command type:', command.type);
+          break;
       }
     };
 
-    // Subscribe to commands
     const unsubscribe = onCommand(handleCommand);
     return unsubscribe;
   }, [isConnected, onCommand]);
 
-  // Handle video URL change
-  const handleVideoUrlChange = (e) => {
-    setVideoUrl(e.target.value);
-  };
-
-  // Load video
-  const handleLoadVideo = () => {
-    if (!playerRef.current || !videoUrl) return;
-
-    // Extract video ID from YouTube URL
-    const videoId = extractVideoId(videoUrl);
-    if (!videoId) {
-      toast.error('Invalid YouTube URL. Please check and try again.');
-      return;
-    }
-
-    playerControls.loadVideoById(playerRef.current, videoId);
-    toast.success('Video loaded! 🎬');
-
-    // Send video ID to peer if leader
-    if (isLeader && isConnected) {
-      sendCommand({ type: 'load-video', videoId });
-    }
-  };
-
-  // Extract YouTube video ID from URL
   const extractVideoId = (url) => {
     const patterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
@@ -217,14 +207,12 @@ const VideoPlayer = () => {
     return null;
   };
 
-  // Handle leave room
   const handleLeaveRoom = () => {
     leaveRoom();
     stopHeartbeat();
     navigate('/lobby');
   };
 
-  // Handle manual resync
   const handleResync = () => {
     manualResync();
     toast.info('Syncing... 🔄');
@@ -239,41 +227,33 @@ const VideoPlayer = () => {
       <Navbar roomCode={roomId} onLeave={handleLeaveRoom} />
 
       <div className="video-player-content">
-        {/* Left section: YouTube player + controls */}
         <div className="video-player-left">
           <div className="video-player-wrapper">
             <div id="youtube-player" ref={playerContainerRef} className="youtube-player" />
             <SyncStatus status={syncStatus} message={syncStatusMessage} />
           </div>
 
-          {/* Video controls */}
           <div className="video-controls">
             <div className="video-url-input">
               <input
                 type="text"
-                placeholder="Paste YouTube URL here..."
+                placeholder="YouTube URL will load from room..."
                 value={videoUrl}
-                onChange={handleVideoUrlChange}
+                readOnly
                 className="url-input"
               />
-              <button onClick={handleLoadVideo} className="load-btn">
-                Load
-              </button>
             </div>
             <ResyncButton onClick={handleResync} isConnected={isConnected} />
           </div>
 
-          {/* Ad banner (free tier only) */}
           <AdBanner isPro={false} />
         </div>
 
-        {/* Right section: Chat overlay */}
         <div className="video-player-right">
           <ChatOverlay roomId={roomId} currentUser={currentUser} />
         </div>
       </div>
 
-      {/* Connection status indicator */}
       <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
         {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
       </div>

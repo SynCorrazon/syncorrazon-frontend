@@ -74,3 +74,14 @@
     max-width: calc(100% - 32px);
   }
 }
+
+/* Add to src/components/common/ToastContainer.css */
+
+.toast {
+  transition: all 0.3s ease;
+  animation: slideInRight 0.4s ease-out;
+}
+
+.toast:hover {
+  transform: translateX(-4px);
+}

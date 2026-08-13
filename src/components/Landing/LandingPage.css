@@ -129,3 +129,18 @@
   box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
 }
 }
+
+/* Add to src/components/Landing/LandingPage.css */
+
+.landing-btn {
+  transition: all 0.3s ease;
+}
+
+.landing-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0, 210, 255, 0.2);
+}
+
+.landing-content {
+  animation: fadeInUp 0.8s ease-out;
+}

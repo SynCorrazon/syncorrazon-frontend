@@ -1,27 +1,21 @@
 // src/services/api.js
 
-/*
-  INSTRUCTIONS:
-  1. This file connects my React frontend to Theo's backend.
-  2. For now, it points to my local machine (localhost) so I can test alone.
-  3. When Theo gives me the live backend URL (Render, ngrok, etc.),
-     I need to change the API_BASE_URL in my .env file.
-  4. The .env change: REACT_APP_API_URL=http://localhost:5000/api 
-     becomes REACT_APP_API_URL=https://syncorrazon-backend.onrender.com/api
-  5. Then I restart my frontend with npm start.
-*/
-
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Helper function that handles all my API calls
-const apiRequest = async (endpoint, method = 'GET', body = null, headers = {}) => {
+// Helper function for API calls
+const apiRequest = async (endpoint, method = 'GET', body = null, token = null) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const options = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers,
   };
 
   if (body) {
@@ -43,52 +37,36 @@ const apiRequest = async (endpoint, method = 'GET', body = null, headers = {}) =
   }
 };
 
-// Auth endpoints – verify my Firebase token with Theo's backend
+// Auth endpoints
 export const authApi = {
   verifyToken: (idToken) => {
-    return apiRequest('/auth/verify', 'POST', { idToken });
+    return apiRequest('/v1/auth', 'POST', { idToken });
+  },
+  getCurrentUser: (token) => {
+    return apiRequest('/v1/auth/me', 'GET', null, token);
   },
 };
 
-// Room endpoints – create, join, leave rooms
+// Room endpoints
 export const roomApi = {
-  createRoom: (roomData) => {
-    return apiRequest('/rooms', 'POST', roomData);
+  createRoom: (videoUrl, token) => {
+    return apiRequest('/v1/rooms', 'POST', { videoUrl }, token);
   },
-
-  getRoom: (roomId) => {
-    return apiRequest(`/rooms/${roomId}`, 'GET');
+  getRooms: (token) => {
+    return apiRequest('/v1/rooms', 'GET', null, token);
   },
-
-  joinRoom: (roomId, userData) => {
-    return apiRequest(`/rooms/${roomId}/join`, 'POST', userData);
+  getRoom: (roomId, token) => {
+    return apiRequest(`/v1/rooms/${roomId}`, 'GET', null, token);
   },
-
-  leaveRoom: (roomId, userId) => {
-    return apiRequest(`/rooms/${roomId}/leave`, 'POST', { userId });
+  joinRoom: (roomCode, token) => {
+    return apiRequest('/v1/rooms/join', 'POST', { roomCode }, token);
   },
-};
-
-// Signaling endpoints – WebRTC handshake between two users
-export const signalingApi = {
-  sendOffer: (roomId, offerData) => {
-    return apiRequest(`/signaling/${roomId}/offer`, 'POST', offerData);
-  },
-
-  sendAnswer: (roomId, answerData) => {
-    return apiRequest(`/signaling/${roomId}/answer`, 'POST', answerData);
-  },
-
-  sendIceCandidate: (roomId, candidateData) => {
-    return apiRequest(`/signaling/${roomId}/ice`, 'POST', candidateData);
+  leaveRoom: (roomId, token) => {
+    return apiRequest(`/v1/rooms/${roomId}/leave`, 'POST', null, token);
   },
 };
 
-// Export everything together
-const api = {
+export default {
   auth: authApi,
   room: roomApi,
-  signaling: signalingApi,
 };
-
-export default api;

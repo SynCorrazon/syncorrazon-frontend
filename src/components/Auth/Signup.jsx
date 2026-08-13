@@ -1,16 +1,5 @@
 // src/components/Auth/Signup.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the Signup page – users create a new account here.
-  2. It has email/password signup and Google Sign-In.
-  3. It uses useAuth() from AuthContext to call signup() and loginWithGoogle().
-  4. It uses useToast() to show success/error messages.
-  5. After successful signup, users are redirected to /lobby.
-  6. It checks that passwords match before submitting.
-  7. If a user is already logged in, they're redirected to /lobby automatically.
-*/
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -27,7 +16,6 @@ const Signup = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   useEffect(() => {
     if (currentUser) {
       navigate('/lobby');
@@ -37,7 +25,6 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
       return;
@@ -55,9 +42,25 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      await signup(email, password);
-      toast.success('Account created! Welcome to SynCorrazon 🎉');
-      navigate('/lobby');
+      const userCredential = await signup(email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        toast.success('Account created! 🎉');
+        navigate('/lobby');
+      } else {
+        toast.error(data.message || 'Signup failed');
+      }
     } catch (error) {
       console.error('Signup error:', error);
       toast.error(error.message || 'Failed to create account. Please try again.');
@@ -69,9 +72,25 @@ const Signup = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      await loginWithGoogle();
-      toast.success('Welcome to SynCorrazon 🎉');
-      navigate('/lobby');
+      const result = await loginWithGoogle();
+      const user = result.user;
+      const idToken = await user.getIdToken();
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        toast.success('Welcome! 🎉');
+        navigate('/lobby');
+      } else {
+        toast.error(data.message || 'Google signup failed');
+      }
     } catch (error) {
       console.error('Google signup error:', error);
       toast.error(error.message || 'Failed to sign up with Google.');

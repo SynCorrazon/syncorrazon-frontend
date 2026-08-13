@@ -1,14 +1,5 @@
 // src/components/Layout/Navbar.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the top navigation bar that appears on most pages.
-  2. It contains: Logo placeholder, room code, invite link, and leave room button.
-  3. Logo is on the left, room controls are on the right.
-  4. I pass roomCode and onLeave as props from the parent component.
-  5. The invite link copies the room URL to the clipboard.
-*/
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoPlaceholder from '../common/LogoPlaceholder';
@@ -49,12 +40,15 @@ const Navbar = ({ roomCode, onLeave }) => {
             </button>
           </>
         )}
-        <button
-          className="navbar-button navbar-leave-btn"
-          onClick={handleLeave}
-        >
-          Leave Room
-        </button>
+        {/* Only show Leave Room button if we're in a room AND onLeave exists */}
+        {roomCode && onLeave && (
+          <button
+            className="navbar-button navbar-leave-btn"
+            onClick={handleLeave}
+          >
+            Leave Room
+          </button>
+        )}
       </div>
     </nav>
   );
