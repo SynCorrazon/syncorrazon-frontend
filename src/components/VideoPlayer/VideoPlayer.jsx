@@ -13,6 +13,7 @@ import ResyncButton from './ResyncButton';
 import AdBanner from './AdBanner';
 import Loader from '../common/Loader';
 import { createYouTubePlayer, playerControls } from '../../utils/youtube';
+import { getBackendToken, roomApi } from '../../services/api';
 import './VideoPlayer.css';
 
 const VideoPlayer = () => {
@@ -25,6 +26,8 @@ const VideoPlayer = () => {
   const playerContainerRef = useRef(null);
 
   const [videoUrl, setVideoUrl] = useState('');
+  const [theme, setTheme] = useState('minimalist');
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,36 +65,24 @@ const VideoPlayer = () => {
     const fetchRoomInfo = async () => {
       if (!roomId) return;
 
-      const token = localStorage.getItem('authToken');
+      const token = await getBackendToken(currentUser);
       if (!token) {
         toast.error('Please log in again');
+        navigate('/login');
         return;
       }
 
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/rooms/${roomId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setVideoUrl(data.data.videoUrl);
-        } else {
-          toast.error(data.message || 'Failed to load room');
-        }
+        const data = await roomApi.getRoom(roomId, token);
+        setVideoUrl(data.data?.videoUrl || data.videoUrl || '');
       } catch (error) {
         console.error('Error fetching room:', error);
-        toast.error('Failed to load room info');
+        toast.error(error.message || 'Failed to load room info');
       }
     };
 
     fetchRoomInfo();
-  }, [roomId, toast]);
+  }, [roomId, toast, navigate]);
 
   // Initialize YouTube player
   useEffect(() => {
@@ -223,35 +214,68 @@ const VideoPlayer = () => {
   }
 
   return (
-    <div className="video-player-container">
-      <Navbar roomCode={roomId} onLeave={handleLeaveRoom} />
+    <div className={`video-player-container theme-${theme}`}>
+      <Navbar
+        roomCode={roomId}
+        onLeave={handleLeaveRoom}
+        theme={theme}
+        onThemeChange={setTheme}
+        isChatExpanded={isChatExpanded}
+        onChatToggle={() => setIsChatExpanded((expanded) => !expanded)}
+      />
 
       <div className="video-player-content">
         <div className="video-player-left">
           <div className="video-player-wrapper">
             <div id="youtube-player" ref={playerContainerRef} className="youtube-player" />
             <SyncStatus status={syncStatus} message={syncStatusMessage} />
+            <div className="video-player-badge">YouTube</div>
           </div>
 
-          <div className="video-controls">
-            <div className="video-url-input">
-              <input
-                type="text"
-                placeholder="YouTube URL will load from room..."
-                value={videoUrl}
-                readOnly
-                className="url-input"
-              />
+          <div className="video-meta">
+            <div>
+              <h1>Dune: Part Two - Official Trailer</h1>
+              <p>Warner Bros. Pictures <span>·</span> 23.4M views</p>
             </div>
+            <span className="watching-badge">Watching together</span>
             <ResyncButton onClick={handleResync} isConnected={isConnected} />
+          </div>
+
+          <div className="participant-row">
+            <div className="participant-avatar">A</div>
+            <strong>alex</strong>
+            <span className="participant-play">▶</span>
+            <span>1:24</span>
+            <span className="participant-drift">synced 0.2s</span>
+            <span className="participant-live"><i /> live</span>
+          </div>
+
+          <div className="video-controls" aria-label="Video details">
+            <span>1:24 / 3:32</span>
+            <div className="video-progress"><span /></div>
           </div>
 
           <AdBanner isPro={false} />
         </div>
 
-        <div className="video-player-right">
-          <ChatOverlay roomId={roomId} currentUser={currentUser} />
-        </div>
+        {isChatExpanded && (
+          <div className="video-player-right">
+            <ChatOverlay
+              roomId={roomId}
+              currentUser={currentUser}
+              isExpanded={isChatExpanded}
+              setIsExpanded={setIsChatExpanded}
+            />
+          </div>
+        )}
+        {!isChatExpanded && (
+          <ChatOverlay
+            roomId={roomId}
+            currentUser={currentUser}
+            isExpanded={isChatExpanded}
+            setIsExpanded={setIsChatExpanded}
+          />
+        )}
       </div>
 
       <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>

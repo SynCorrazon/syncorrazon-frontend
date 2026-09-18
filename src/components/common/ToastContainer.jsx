@@ -9,7 +9,7 @@
   5. It uses React's Context API – I wrap the app with ToastProvider so I can use it anywhere.
 */
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import './ToastContainer.css';
 
 // Create the context
@@ -40,18 +40,15 @@ export const ToastProvider = ({ children }) => {
   }, []);
 
   // Helper methods for different types
-  const success = (message, duration) => addToast(message, 'success', duration);
-  const error = (message, duration) => addToast(message, 'error', duration);
-  const info = (message, duration) => addToast(message, 'info', duration);
-  const warning = (message, duration) => addToast(message, 'warning', duration);
+  const success = useCallback((message, duration) => addToast(message, 'success', duration), [addToast]);
+  const error = useCallback((message, duration) => addToast(message, 'error', duration), [addToast]);
+  const info = useCallback((message, duration) => addToast(message, 'info', duration), [addToast]);
+  const warning = useCallback((message, duration) => addToast(message, 'warning', duration), [addToast]);
 
-  const value = {
-    addToast,
-    success,
-    error,
-    info,
-    warning,
-  };
+  const value = useMemo(
+    () => ({ addToast, success, error, info, warning }),
+    [addToast, success, error, info, warning]
+  );
 
   return (
     <ToastContext.Provider value={value}>

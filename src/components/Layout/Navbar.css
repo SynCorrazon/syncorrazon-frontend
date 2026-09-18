@@ -103,3 +103,115 @@
     font-size: 11px;
   }
 }
+
+/* Room header themes */
+.navbar {
+  background: var(--surface, #0f1724);
+  border-bottom-color: var(--line, rgba(148, 163, 184, 0.16));
+  color: var(--text, #f8fafc);
+  gap: 24px;
+}
+
+.navbar-left {
+  flex: 0 0 auto;
+}
+
+.navbar-theme-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+}
+
+.navbar-theme-control label {
+  color: var(--muted, #91a0b5);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.navbar-theme-control select {
+  max-width: 220px;
+  padding: 8px 28px 8px 10px;
+  color: var(--text, #f8fafc);
+  background: var(--control, #162333);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.16));
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.navbar-theme-control select:focus {
+  border-color: var(--cyan, #31d8f5);
+  outline: 2px solid rgba(49, 216, 245, 0.18);
+}
+
+.navbar-chat-btn,
+.navbar-sync-status {
+  color: var(--muted, #91a0b5);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.navbar-chat-btn span,
+.navbar-sync-status strong {
+  margin-left: 5px;
+  color: var(--text, #f8fafc);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.navbar-chat-btn:hover {
+  color: var(--cyan, #31d8f5);
+}
+
+.navbar-sync-status i,
+.participant-live i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #36d88b;
+}
+
+.navbar-room-code {
+  padding: 0;
+  color: var(--muted, #91a0b5);
+  background: transparent;
+  border: 0;
+}
+
+.navbar-invite-btn {
+  padding: 8px 12px;
+  color: var(--navy, #07111c);
+  background: var(--cyan, #31d8f5);
+  border-radius: 5px;
+}
+
+.navbar-leave-btn {
+  padding: 7px 12px;
+  color: #ff6b7c;
+  border-color: rgba(255, 107, 124, 0.5);
+  border-radius: 5px;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .navbar-theme-control {
+    order: 3;
+    width: 100%;
+  }
+
+  .navbar-theme-control select {
+    flex: 1;
+    max-width: none;
+  }
+}

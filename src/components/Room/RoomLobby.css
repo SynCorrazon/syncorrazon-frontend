@@ -172,6 +172,53 @@
   font-family: 'Inter', sans-serif;
 }
 
+.feedback-form {
+  width: 100%;
+  max-width: 832px;
+  margin-top: 32px;
+  padding: 20px 24px;
+  background-color: rgba(22, 33, 62, 0.72);
+  border: 1px solid rgba(0, 210, 255, 0.08);
+  border-radius: 12px;
+}
+
+.feedback-form-title {
+  margin: 0 0 4px;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+}
+
+.feedback-form-copy {
+  margin: 0 0 12px;
+  color: #A8A8B3;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+}
+
+.feedback-form-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #FFFFFF;
+  font: 14px/1.5 'Inter', sans-serif;
+}
+
+.feedback-form-input:focus {
+  border-color: #00D2FF;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
+}
+
+.feedback-form-input::placeholder {
+  color: #A8A8B3;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .room-lobby-content {

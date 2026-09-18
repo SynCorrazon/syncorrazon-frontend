@@ -14,11 +14,21 @@
 }
 
 .landing-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   font-size: 48px;
   font-weight: 700;
   color: #FFFFFF;
   font-family: 'Inter', sans-serif;
   margin: 0 0 8px 0;
+}
+
+.landing-title img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
 }
 
 .landing-subtitle {
@@ -93,6 +103,11 @@
 @media (max-width: 480px) {
   .landing-title {
     font-size: 32px;
+    gap: 8px;
+  }
+  .landing-title img {
+    width: 44px;
+    height: 44px;
   }
   .landing-subtitle {
     font-size: 18px;

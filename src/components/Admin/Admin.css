@@ -445,3 +445,8 @@
     padding: 24px 20px;
   }
 }
+.admin-feedback-date {
+  color: #A8A8B3;
+  font-size: 12px;
+  font-weight: 400;
+}

@@ -1,0 +1,40 @@
+.approved-reviews {
+  width: min(600px, 100%);
+  margin-top: 44px;
+  color: #FFFFFF;
+}
+
+.approved-reviews h2 {
+  margin: 0 0 16px;
+  font: 600 20px 'Inter', sans-serif;
+}
+
+.approved-reviews-list {
+  display: grid;
+  gap: 12px;
+}
+
+.approved-review {
+  padding: 16px 18px;
+  border: 1px solid rgba(0, 210, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(22, 33, 62, 0.7);
+  text-align: left;
+}
+
+.approved-review-rating {
+  color: #00D2FF;
+  letter-spacing: 3px;
+  font-size: 13px;
+}
+
+.approved-review p {
+  margin: 8px 0;
+  color: #D9DCE5;
+  font: 14px/1.5 'Inter', sans-serif;
+}
+
+.approved-review strong {
+  color: #A8A8B3;
+  font: 600 12px 'Inter', sans-serif;
+}

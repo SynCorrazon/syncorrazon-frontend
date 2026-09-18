@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import Loader from '../common/Loader';
+import { authApi } from '../../services/api';
 import './Auth.css';
 
 const Signup = () => {
@@ -46,21 +47,10 @@ const Signup = () => {
       const user = userCredential.user;
       const idToken = await user.getIdToken();
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('authToken', data.token);
-        toast.success('Account created! 🎉');
-        navigate('/lobby');
-      } else {
-        toast.error(data.message || 'Signup failed');
-      }
+      const data = await authApi.verifyToken(idToken);
+      localStorage.setItem('authToken', data.token);
+      toast.success('Account created! 🎉');
+      navigate('/lobby');
     } catch (error) {
       console.error('Signup error:', error);
       toast.error(error.message || 'Failed to create account. Please try again.');
@@ -76,21 +66,10 @@ const Signup = () => {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/auth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('authToken', data.token);
-        toast.success('Welcome! 🎉');
-        navigate('/lobby');
-      } else {
-        toast.error(data.message || 'Google signup failed');
-      }
+      const data = await authApi.verifyToken(idToken);
+      localStorage.setItem('authToken', data.token);
+      toast.success('Welcome! 🎉');
+      navigate('/lobby');
     } catch (error) {
       console.error('Google signup error:', error);
       toast.error(error.message || 'Failed to sign up with Google.');

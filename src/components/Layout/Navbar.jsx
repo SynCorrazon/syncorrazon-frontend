@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import LogoPlaceholder from '../common/LogoPlaceholder';
 import './Navbar.css';
 
-const Navbar = ({ roomCode, onLeave }) => {
+const Navbar = ({ roomCode, onLeave, theme = 'minimalist', onThemeChange, isChatExpanded, onChatToggle }) => {
   const navigate = useNavigate();
 
   const handleCopyInvite = () => {
@@ -28,15 +28,33 @@ const Navbar = ({ roomCode, onLeave }) => {
         <LogoPlaceholder />
       </div>
 
+      {roomCode && (
+        <div className="navbar-theme-control">
+          <label htmlFor="theme-select">Theme</label>
+          <select
+            id="theme-select"
+            value={theme}
+            onChange={(event) => onThemeChange?.(event.target.value)}
+          >
+            <option value="minimalist">A Minimalist - Clean &amp; focused</option>
+            <option value="glass">B Glassmorphism - Blur &amp; depth</option>
+          </select>
+        </div>
+      )}
+
       <div className="navbar-right">
         {roomCode && (
           <>
+            <button className="navbar-chat-btn" onClick={onChatToggle} aria-pressed={isChatExpanded}>
+              CHAT <span>{isChatExpanded ? 'Expanded' : 'Collapsed'}</span>
+            </button>
+            <span className="navbar-sync-status"><i /> SYNC <strong>Synced</strong></span>
             <span className="navbar-room-code">Room: {roomCode}</span>
             <button
               className="navbar-button navbar-invite-btn"
               onClick={handleCopyInvite}
             >
-              📋 Invite
+              Copy Link
             </button>
           </>
         )}

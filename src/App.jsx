@@ -13,6 +13,8 @@ import Signup from './components/Auth/Signup';
 import RoomLobby from './components/Room/RoomLobby';
 import RoomCreation from './components/Room/RoomCreation';
 import VideoPlayer from './components/VideoPlayer/VideoPlayer';
+import AdminAuth from './components/Admin/AdminAuth';
+import AdminPanel from './components/Admin/AdminPanel';
 
 // 404
 import NotFound from './components/common/NotFound';
@@ -50,6 +52,15 @@ function App() {
               <ProtectedRoute>
                 <VideoPlayer />
               </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin3962"
+            element={
+              <AdminAuth>
+                <AdminPanel />
+              </AdminAuth>
             }
           />
 

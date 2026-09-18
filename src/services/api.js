@@ -47,6 +47,17 @@ export const authApi = {
   },
 };
 
+export const getBackendToken = async (currentUser) => {
+  const storedToken = localStorage.getItem('authToken');
+  if (storedToken) return storedToken;
+  if (!currentUser) return null;
+
+  const idToken = await currentUser.getIdToken();
+  const data = await authApi.verifyToken(idToken);
+  localStorage.setItem('authToken', data.token);
+  return data.token;
+};
+
 // Room endpoints
 export const roomApi = {
   createRoom: (videoUrl, token) => {

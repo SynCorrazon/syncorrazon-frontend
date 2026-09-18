@@ -17,7 +17,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import Navbar from '../Layout/Navbar';
 import Loader from '../common/Loader';
-import { generateRoomCode } from '../../utils/roomCode';
+import FeedbackForm from '../common/FeedbackForm';
+import { getBackendToken, roomApi } from '../../services/api';
 import './RoomLobby.css';
 
 const RoomLobby = () => {
@@ -29,21 +30,11 @@ const RoomLobby = () => {
 
   // Create a new room
   const handleCreateRoom = () => {
-    setLoading(true);
-    try {
-      const roomCode = generateRoomCode();
-      toast.success(`Room created! Code: ${roomCode}`);
-      navigate(`/room/${roomCode}`);
-    } catch (error) {
-      console.error('Create room error:', error);
-      toast.error('Failed to create room. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    navigate('/create-room');
   };
 
   // Join an existing room
-  const handleJoinRoom = (e) => {
+  const handleJoinRoom = async (e) => {
     e.preventDefault();
     const code = joinCode.trim().toUpperCase();
 
@@ -59,11 +50,18 @@ const RoomLobby = () => {
 
     setLoading(true);
     try {
-      // Navigate to the room – backend will validate if it exists
+      const token = await getBackendToken(currentUser);
+      if (!token) {
+        toast.error('Your session has expired. Please log in again.');
+        navigate('/login');
+        return;
+      }
+
+      await roomApi.joinRoom(code, token);
       navigate(`/room/${code}`);
     } catch (error) {
       console.error('Join room error:', error);
-      toast.error('Failed to join room. Please check the code.');
+      toast.error(error.message || 'Room not found. Please check the code.');
     } finally {
       setLoading(false);
     }
@@ -135,6 +133,8 @@ const RoomLobby = () => {
             💡 Watch together. Anywhere. Low data. Nigerian-first.
           </p>
         </div>
+        
+        <FeedbackForm />
       </div>
     </div>
   );

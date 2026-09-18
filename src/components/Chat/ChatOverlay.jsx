@@ -25,14 +25,24 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import './ChatOverlay.css';
 
-const ChatOverlay = ({ roomId, currentUser }) => {
+const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const toast = useToast();
+  const chatExpanded = typeof isExpanded === 'boolean' ? isExpanded : internalExpanded;
+
+  const toggleChat = () => {
+    const nextExpanded = !chatExpanded;
+    setIsExpanded?.(nextExpanded);
+    if (typeof isExpanded !== 'boolean') setInternalExpanded(nextExpanded);
+    if (nextExpanded) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
 
   // Fetch messages from Firestore
   useEffect(() => {
@@ -49,27 +59,27 @@ const ChatOverlay = ({ roomId, currentUser }) => {
       setMessages(newMessages);
 
       // Update unread count (if not expanded)
-      if (!isExpanded && newMessages.length > 0) {
+      if (!chatExpanded && newMessages.length > 0) {
         setUnreadCount((prev) => prev + 1);
       }
     });
 
     return () => unsubscribe();
-  }, [roomId, isExpanded]);
+  }, [roomId, chatExpanded]);
 
   // Auto-scroll to bottom when messages update
   useEffect(() => {
-    if (messagesEndRef.current && isExpanded) {
+    if (messagesEndRef.current && chatExpanded) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isExpanded]);
+  }, [messages, chatExpanded]);
 
   // Mark messages as read when expanded
   useEffect(() => {
-    if (isExpanded) {
+    if (chatExpanded) {
       setUnreadCount(0);
     }
-  }, [isExpanded]);
+  }, [chatExpanded]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -90,15 +100,6 @@ const ChatOverlay = ({ roomId, currentUser }) => {
     }
   };
 
-  // Toggle chat expansion
-  const toggleChat = () => {
-    setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      // Focus input when expanding
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  };
-
   // Format timestamp
   const formatTime = (timestamp) => {
     if (!timestamp) return '';
@@ -107,11 +108,11 @@ const ChatOverlay = ({ roomId, currentUser }) => {
   };
 
   return (
-    <div className={`chat-overlay ${isExpanded ? 'chat-overlay-expanded' : 'chat-overlay-collapsed'}`}>
+    <div className={`chat-overlay ${chatExpanded ? 'chat-overlay-expanded' : 'chat-overlay-collapsed'}`}>
       {/* Collapsed state – bubble icon */}
-      {!isExpanded && (
-        <button className="chat-bubble" onClick={toggleChat}>
-          <span className="chat-bubble-icon">💬</span>
+      {!chatExpanded && (
+        <button className="chat-bubble" onClick={toggleChat} aria-label="Open watch chat">
+          <span className="chat-bubble-icon">◌</span>
           {unreadCount > 0 && (
             <span className="chat-bubble-badge">{unreadCount}</span>
           )}
@@ -123,8 +124,11 @@ const ChatOverlay = ({ roomId, currentUser }) => {
         <div className="chat-panel">
           {/* Header */}
           <div className="chat-header">
-            <span className="chat-header-title">Chat</span>
-            <button className="chat-header-close" onClick={toggleChat}>
+            <div>
+              <span className="chat-header-title">Watch Chat</span>
+              <span className="chat-online">2 online</span>
+            </div>
+            <button className="chat-header-close" onClick={toggleChat} aria-label="Close watch chat">
               ✕
             </button>
           </div>
@@ -171,13 +175,13 @@ const ChatOverlay = ({ roomId, currentUser }) => {
               ref={inputRef}
               type="text"
               className="chat-input"
-              placeholder="Type a message..."
+              placeholder="Say something..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               maxLength={500}
             />
             <button type="submit" className="chat-send-btn" disabled={!input.trim()}>
-              Send
+              Send <span aria-hidden="true">→</span>
             </button>
           </form>
         </div>

@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import Navbar from '../Layout/Navbar';
 import Loader from '../common/Loader';
+import { getBackendToken, roomApi } from '../../services/api';
 import './RoomCreation.css';
 
 const RoomCreation = () => {
@@ -25,35 +26,24 @@ const RoomCreation = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
+      const token = await getBackendToken(currentUser);
       if (!token) {
         toast.error('Please log in again');
+        navigate('/login');
         return;
       }
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/v1/rooms`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ videoUrl: youtubeUrl }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setRoomCode(data.data.roomCode);
-        toast.success(`Room created! Code: ${data.data.roomCode}`);
-        setTimeout(() => {
-          navigate(`/room/${data.data.roomCode}`);
-        }, 500);
-      } else {
-        toast.error(data.message || 'Failed to create room');
+      const data = await roomApi.createRoom(youtubeUrl, token);
+      const createdRoomCode = data.data?.roomCode || data.roomCode;
+      if (!createdRoomCode) {
+        throw new Error('The server did not return a room code.');
       }
+
+      setRoomCode(createdRoomCode);
+      toast.success(`Room created! Code: ${createdRoomCode}`);
     } catch (error) {
       console.error('Create room error:', error);
-      toast.error('Failed to create room. Please try again.');
+      toast.error(error.message || 'Failed to create room. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -136,7 +126,7 @@ const RoomCreation = () => {
               </div>
 
               <p className="room-creation-hint">
-                Or share the room code manually with your partner
+                Keep this page open while your partner joins. Share the code or invite link.
               </p>
             </div>
           )}
