@@ -1,445 +1,278 @@
-/* src/components/VideoPlayer/VideoPlayer.css */
+// src/components/VideoPlayer/VideoPlayer.jsx
 
-/*
-  INSTRUCTIONS FOR ME (CHISOM):
-  1. This is the shared styles for the VideoPlayer page.
-  2. It follows the dark theme (Deep Indigo background, Neon Cyan accents).
-  3. It's responsive and works on all screen sizes.
-  4. It covers: layout, YouTube player, sync status, controls, chat, and connection status.
-*/
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../common/ToastContainer';
+import useWebRTC from '../../hooks/useWebRTC';
+import useHeartbeat from '../../hooks/useHeartbeat';
+import Navbar from '../Layout/Navbar';
+import ChatOverlay from '../Chat/ChatOverlay';
+import SyncStatus from './SyncStatus';
+import ResyncButton from './ResyncButton';
+import AdBanner from './AdBanner';
+import Loader from '../common/Loader';
+import { createYouTubePlayer, playerControls } from '../../utils/youtube';
+import { getBackendToken, roomApi } from '../../services/api';
+import './VideoPlayer.css';
 
-/* Container */
-.video-player-container {
-  min-height: 100vh;
-  background-color: #1A1A2E;
-  display: flex;
-  flex-direction: column;
-}
+const VideoPlayer = () => {
+  const { roomId } = useParams();
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const toast = useToast();
 
-/* Content – main layout */
-.video-player-content {
-  flex: 1;
-  display: flex;
-  padding: 20px;
-  gap: 20px;
-  height: calc(100vh - 64px);
-}
+  const playerRef = useRef(null);
+  const playerContainerRef = useRef(null);
 
-/* Left section – YouTube player (70%) */
-.video-player-left {
-  flex: 0 0 70%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+  const [videoUrl, setVideoUrl] = useState('');
+  const [theme, setTheme] = useState('minimalist');
+  const [isChatExpanded, setIsChatExpanded] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-.video-player-wrapper {
-  flex: 1;
-  position: relative;
-  background-color: #000000;
-  border-radius: 12px;
-  overflow: hidden;
-  aspect-ratio: 16/9;
-}
+  const {
+    isConnected,
+    sendCommand,
+    onCommand,
+    joinRoom,
+    leaveRoom,
+    isLeader,
+  } = useWebRTC(roomId, currentUser);
 
-.youtube-player {
-  width: 100%;
-  height: 100%;
-}
+  const {
+    syncStatus,
+    startHeartbeat,
+    stopHeartbeat,
+    manualResync,
+    syncStatusMessage,
+  } = useHeartbeat({
+    isLeader,
+    playerRef,
+    sendCommand,
+    onCommand,
+    driftThresholds: {
+      green: 1,
+      yellow: 3,
+      orange: 5,
+    },
+  });
 
-/* Sync Status positioned above player */
-.video-player-wrapper .sync-status {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
+  useEffect(() => {
+    const fetchRoomInfo = async () => {
+      if (!roomId) return;
 
-/* Video controls */
-.video-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+      const token = await getBackendToken(currentUser);
+      if (!token) {
+        toast.error('Please log in again');
+        navigate('/login');
+        return;
+      }
 
-.video-url-input {
-  flex: 1;
-  display: flex;
-  gap: 8px;
-  min-width: 200px;
-}
+      try {
+        const data = await roomApi.getRoom(roomId, token);
+        setVideoUrl(data.data?.videoUrl || data.videoUrl || '');
+      } catch (error) {
+        console.error('Error fetching room:', error);
+        toast.error(error.message || 'Failed to load room info');
+      }
+    };
 
-.url-input {
-  flex: 1;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #FFFFFF;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  transition: border-color 0.2s ease;
-}
+    fetchRoomInfo();
+  }, [roomId, toast, navigate, currentUser]);
 
-.url-input:focus {
-  border-color: #00D2FF;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.15);
-}
+  useEffect(() => {
+    const initPlayer = async () => {
+      try {
+        const player = await createYouTubePlayer('youtube-player', {
+          height: '100%',
+          width: '100%',
+          videoId: '',
+          playerVars: {
+            controls: 1,
+            rel: 0,
+            modestbranding: 1,
+            iv_load_policy: 3,
+            disablekb: 0,
+            fs: 1,
+          },
+          onReady: () => {
+            setIsPlayerReady(true);
+            setIsLoading(false);
+            toast.info('YouTube player ready! 🎬');
+          },
+          onStateChange: (event) => {
+            if (event.data === 1 && isLeader && isConnected) {
+              sendCommand({ type: 'play', timestamp: playerControls.getCurrentTime(player) });
+            } else if (event.data === 2 && isLeader && isConnected) {
+              sendCommand({ type: 'pause', timestamp: playerControls.getCurrentTime(player) });
+            }
+          },
+          onError: (error) => {
+            console.error('YouTube player error:', error);
+            toast.error('Failed to load YouTube player. Please refresh.');
+          },
+        });
+        playerRef.current = player;
+      } catch (error) {
+        console.error('Error initializing YouTube player:', error);
+        toast.error('Failed to initialize YouTube player.');
+        setIsLoading(false);
+      }
+    };
 
-.url-input::placeholder {
-  color: #A8A8B3;
-}
+    initPlayer();
 
-.load-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  background-color: #00D2FF;
-  color: #1A1A2E;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
+    return () => {
+      if (playerRef.current) {
+        playerControls.destroy(playerRef.current);
+      }
+    };
+  }, []);
 
-.load-btn:hover {
-  background-color: #00b8e6;
-  transform: translateY(-1px);
-}
+  useEffect(() => {
+    if (isPlayerReady && playerRef.current && videoUrl) {
+      const videoId = extractVideoId(videoUrl);
+      if (videoId) {
+        playerControls.loadVideoById(playerRef.current, videoId);
+      }
+    }
+  }, [videoUrl, isPlayerReady]);
 
-/* Right section – Chat (30%) */
-.video-player-right {
-  flex: 1;
-  min-width: 200px;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-}
+  useEffect(() => {
+    if (isPlayerReady && currentUser && roomId) {
+      joinRoom();
+    }
+  }, [isPlayerReady, currentUser, roomId, joinRoom]);
 
-/* Connection status indicator */
-.connection-status {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  background-color: #16213E;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-}
+  useEffect(() => {
+    if (isConnected && isPlayerReady) {
+      startHeartbeat();
+    } else {
+      stopHeartbeat();
+    }
+  }, [isConnected, isPlayerReady, startHeartbeat, stopHeartbeat]);
 
-.connection-status.connected {
-  color: #00FF88;
-  border-color: rgba(0, 255, 136, 0.2);
-}
+  useEffect(() => {
+    if (!isConnected) return;
 
-.connection-status.disconnected {
-  color: #FF0044;
-  border-color: rgba(255, 0, 68, 0.2);
-}
+    const handleCommand = (command) => {
+      if (!playerRef.current) return;
 
-/* Mobile responsiveness */
-@media (max-width: 1024px) {
-  .video-player-content {
-    flex-direction: column;
-    height: auto;
-    padding: 16px;
+      switch (command.type) {
+        case 'play':
+          playerControls.play(playerRef.current);
+          break;
+        case 'pause':
+          playerControls.pause(playerRef.current);
+          break;
+        case 'seek':
+          playerControls.seekTo(playerRef.current, command.timestamp);
+          break;
+        default:
+          break;
+      }
+    };
+
+    return onCommand(handleCommand);
+  }, [isConnected, onCommand]);
+
+  const extractVideoId = (url) => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+      /youtube\.com\/embed\/([^&\n?#]+)/,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const handleLeaveRoom = () => {
+    leaveRoom();
+    stopHeartbeat();
+    navigate('/lobby');
+  };
+
+  const handleResync = () => {
+    manualResync();
+    toast.info('Syncing... 🔄');
+  };
+
+  if (isLoading) {
+    return <Loader />;
   }
 
-  .video-player-left {
-    flex: 1;
-    width: 100%;
-  }
+  return (
+    <div className={`video-player-container theme-${theme}`}>
+      <Navbar
+        roomCode={roomId}
+        onLeave={handleLeaveRoom}
+        theme={theme}
+        onThemeChange={setTheme}
+        isChatExpanded={isChatExpanded}
+        onChatToggle={() => setIsChatExpanded((expanded) => !expanded)}
+      />
 
-  .video-player-right {
-    max-width: 100%;
-    height: 200px;
-  }
+      <div className="video-player-content">
+        <div className="video-player-left">
+          <div className="video-player-wrapper">
+            <div id="youtube-player" ref={playerContainerRef} className="youtube-player" />
+            <SyncStatus status={syncStatus} message={syncStatusMessage} />
+            <div className="video-player-badge">YouTube</div>
+          </div>
 
-  .video-player-wrapper {
-    aspect-ratio: 16/9;
-  }
-}
+          <div className="video-meta">
+            <div>
+              <h1>Dune: Part Two - Official Trailer</h1>
+              <p>Warner Bros. Pictures <span>·</span> 23.4M views</p>
+            </div>
+            <span className="watching-badge">Watching together</span>
+            <ResyncButton onClick={handleResync} isConnected={isConnected} />
+          </div>
 
-@media (max-width: 768px) {
-  .video-player-content {
-    padding: 12px;
-  }
+          <div className="participant-row">
+            <div className="participant-avatar">A</div>
+            <strong>alex</strong>
+            <span className="participant-play">▶</span>
+            <span>1:24</span>
+            <span className="participant-drift">synced 0.2s</span>
+            <span className="participant-live"><i /> live</span>
+          </div>
 
-  .video-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
+          <div className="video-controls" aria-label="Video details">
+            <span>1:24 / 3:32</span>
+            <div className="video-progress"><span /></div>
+          </div>
 
-  .video-url-input {
-    min-width: unset;
-  }
+          <AdBanner isPro={false} />
+        </div>
 
-  .video-player-right {
-    height: 150px;
-  }
+        {isChatExpanded ? (
+          <div className="video-player-right">
+            <ChatOverlay
+              roomId={roomId}
+              currentUser={currentUser}
+              isExpanded={isChatExpanded}
+              setIsExpanded={setIsChatExpanded}
+            />
+          </div>
+        ) : (
+          <ChatOverlay
+            roomId={roomId}
+            currentUser={currentUser}
+            isExpanded={isChatExpanded}
+            setIsExpanded={setIsChatExpanded}
+          />
+        )}
+      </div>
 
-  .connection-status {
-    bottom: 12px;
-    padding: 4px 12px;
-    font-size: 10px;
-  }
-}
+      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
+      </div>
+    </div>
+  );
+};
 
-@media (max-width: 480px) {
-  .video-player-content {
-    padding: 8px;
-    gap: 8px;
-  }
-
-  .video-player-wrapper {
-    border-radius: 8px;
-  }
-
-  .video-player-right {
-    height: 120px;
-  }
-
-  .url-input {
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-
-  .load-btn {
-    font-size: 12px;
-    padding: 8px 16px;
-  }
-}
-
-/* SynCorrazon room themes */
-.video-player-container {
-  --navy: #07111c;
-  --surface: #0f1724;
-  --surface-raised: #142131;
-  --control: #162333;
-  --line: rgba(148, 163, 184, 0.16);
-  --text: #f8fafc;
-  --muted: #91a0b5;
-  --cyan: #31d8f5;
-  --green: #36d88b;
-  background: var(--navy);
-  color: var(--text);
-}
-
-.theme-glass {
-  background:
-    radial-gradient(circle at 70% 0%, rgba(53, 74, 155, 0.22), transparent 34%),
-    radial-gradient(circle at 10% 70%, rgba(0, 192, 220, 0.1), transparent 30%),
-    #070b16;
-}
-
-.theme-glass .navbar,
-.theme-glass .video-meta,
-.theme-glass .participant-row,
-.theme-glass .video-player-wrapper,
-.theme-glass .chat-panel {
-  background: rgba(15, 23, 36, 0.64);
-  border-color: rgba(190, 214, 255, 0.16);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(18px);
-}
-
-.video-player-content {
-  width: min(1500px, 100%);
-  margin: 0 auto;
-  padding: 28px 32px 48px;
-  gap: 24px;
-}
-
-.video-player-left {
-  flex: 1 1 auto;
-  min-width: 0;
-  gap: 14px;
-}
-
-.video-player-wrapper {
-  min-height: 0;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
-}
-
-.video-player-badge {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  padding: 5px 8px;
-  color: #fff;
-  background: rgba(255, 0, 0, 0.84);
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.video-meta,
-.participant-row {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--line);
-  background: var(--surface);
-}
-
-.video-meta {
-  gap: 18px;
-  padding: 17px 20px;
-}
-
-.video-meta > div {
-  min-width: 0;
-  margin-right: auto;
-}
-
-.video-meta h1 {
-  margin: 0 0 5px;
-  color: var(--text);
-  font-size: clamp(18px, 2vw, 25px);
-  line-height: 1.15;
-}
-
-.video-meta p {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.video-meta p span {
-  padding: 0 4px;
-}
-
-.watching-badge {
-  padding: 6px 9px;
-  color: var(--cyan);
-  border: 1px solid rgba(49, 216, 245, 0.28);
-  border-radius: 4px;
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.participant-row {
-  gap: 10px;
-  min-height: 52px;
-  padding: 9px 14px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.participant-avatar {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  color: #07111c;
-  background: var(--cyan);
-  border-radius: 50%;
-  font-weight: 800;
-}
-
-.participant-row strong {
-  color: var(--text);
-}
-
-.participant-play {
-  margin-left: 8px;
-  color: var(--cyan);
-  font-size: 10px;
-}
-
-.participant-drift {
-  margin-left: auto;
-}
-
-.participant-live {
-  color: var(--green);
-  font-weight: 700;
-}
-
-.video-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 4px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.video-progress {
-  flex: 1;
-  height: 3px;
-  overflow: hidden;
-  background: #263243;
-  border-radius: 3px;
-}
-
-.video-progress span {
-  display: block;
-  width: 39.5%;
-  height: 100%;
-  background: #ef4444;
-}
-
-.video-player-right {
-  flex: 0 0 330px;
-  max-width: none;
-  min-width: 280px;
-}
-
-.video-player-content > .chat-overlay-collapsed {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 20;
-  width: auto;
-  height: auto;
-}
-
-.connection-status {
-  right: 28px;
-  bottom: 28px;
-  left: auto;
-  transform: none;
-  color: var(--muted);
-  background: var(--surface);
-  border-color: var(--line);
-}
-
-@media (max-width: 1024px) {
-  .video-player-content {
-    padding: 18px 16px 40px;
-  }
-
-  .video-player-right {
-    flex: 1 1 auto;
-    width: 100%;
-    height: 360px;
-  }
-}
-
-@media (max-width: 640px) {
-  .video-meta {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .video-meta > div {
-    flex-basis: 100%;
-  }
-
-  .participant-drift {
-    display: none;
-  }
-}
+export default VideoPlayer;

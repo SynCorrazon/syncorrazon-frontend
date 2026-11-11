@@ -4,6 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
   padding: 12px 24px;
   min-height: 64px;
   width: 100%;
@@ -25,6 +26,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 0 0 auto;
 }
 
 .navbar-theme-group {
