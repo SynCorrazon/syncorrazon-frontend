@@ -1,217 +1,76 @@
-/* src/components/Layout/Navbar.css */
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import LogoPlaceholder from '../common/LogoPlaceholder';
+import './Navbar.css';
 
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  background-color: #16213E;
-  border-bottom: 1px solid rgba(0, 210, 255, 0.1);
-  min-height: 64px;
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+const THEME_OPTIONS = [
+  { value: 'minimalist', label: 'A Minimalist', subtitle: 'Clean & focused' },
+  { value: 'glass', label: 'B Glassmorphism', subtitle: 'Blur & depth' },
+  { value: 'bold', label: 'C Bold Accents', subtitle: 'Neon & contrast' },
+  { value: 'warm', label: 'D Warm & Cozy', subtitle: 'Soft & intimate' },
+];
 
-.navbar-left {
-  display: flex;
-  align-items: center;
-}
+const Navbar = ({ roomCode, onLeave, theme = 'minimalist', onThemeChange, isChatExpanded, onChatToggle }) => {
+  const navigate = useNavigate();
 
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+  const handleCopyInvite = () => {
+    const inviteLink = `${window.location.origin}/room/${roomCode}`;
+    navigator.clipboard.writeText(inviteLink);
+    alert('Invite link copied to clipboard!');
+  };
 
-.navbar-room-code {
-  color: #A8A8B3;
-  font-size: 14px;
-  font-family: 'Inter', sans-serif;
-  background-color: rgba(0, 210, 255, 0.08);
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 210, 255, 0.15);
-}
+  const handleLeave = () => {
+    if (onLeave) {
+      onLeave();
+    } else {
+      navigate('/lobby');
+    }
+  };
 
-.navbar-button {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  return (
+    <nav className="navbar">
+      <div className="navbar-left">
+        <LogoPlaceholder />
+      </div>
 
-.navbar-invite-btn {
-  background-color: #00D2FF;
-  color: #1A1A2E;
-  border: none;
-}
+      {roomCode && (
+        <div className="navbar-theme-group" aria-label="Theme selector">
+          {THEME_OPTIONS.map(({ value, label, subtitle }) => (
+            <button
+              key={value}
+              type="button"
+              className={`theme-option ${theme === value ? 'theme-option-active' : ''}`}
+              onClick={() => onThemeChange?.(value)}
+            >
+              <span className="theme-option-label">{label}</span>
+              <span className="theme-option-subtitle">{subtitle}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
-.navbar-invite-btn:hover {
-  background-color: #00b8e6;
-  transform: translateY(-1px);
-}
+      <div className="navbar-right">
+        {roomCode && (
+          <>
+            <button className="navbar-chat-btn" onClick={onChatToggle} aria-pressed={isChatExpanded}>
+              CHAT <span>{isChatExpanded ? 'Expanded' : 'Collapsed'}</span>
+            </button>
+            <span className="navbar-sync-status"><i /> SYNC <strong>Synced</strong></span>
+            <span className="navbar-room-code">Room: {roomCode}</span>
+            <button className="navbar-button navbar-invite-btn" onClick={handleCopyInvite}>
+              Copy Link
+            </button>
+          </>
+        )}
 
-.navbar-leave-btn {
-  background-color: transparent;
-  color: #FF0044;
-  border: 1px solid #FF0044;
-}
+        {roomCode && onLeave && (
+          <button className="navbar-button navbar-leave-btn" onClick={handleLeave}>
+            Leave Room
+          </button>
+        )}
+      </div>
+    </nav>
+  );
+};
 
-.navbar-leave-btn:hover {
-  background-color: rgba(255, 0, 68, 0.1);
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 10px 16px;
-    min-height: 56px;
-  }
-
-  .navbar-room-code {
-    font-size: 12px;
-    padding: 4px 10px;
-  }
-
-  .navbar-button {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .navbar-right {
-    gap: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    padding: 8px 12px;
-    min-height: 48px;
-  }
-
-  .navbar-room-code {
-    display: none;
-  }
-
-  .navbar-button {
-    padding: 4px 10px;
-    font-size: 11px;
-  }
-}
-
-/* Room header themes */
-.navbar {
-  background: var(--surface, #0f1724);
-  border-bottom-color: var(--line, rgba(148, 163, 184, 0.16));
-  color: var(--text, #f8fafc);
-  gap: 24px;
-}
-
-.navbar-left {
-  flex: 0 0 auto;
-}
-
-.navbar-theme-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-right: auto;
-}
-
-.navbar-theme-control label {
-  color: var(--muted, #91a0b5);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.navbar-theme-control select {
-  max-width: 220px;
-  padding: 8px 28px 8px 10px;
-  color: var(--text, #f8fafc);
-  background: var(--control, #162333);
-  border: 1px solid var(--line, rgba(148, 163, 184, 0.16));
-  border-radius: 5px;
-  font-size: 12px;
-}
-
-.navbar-theme-control select:focus {
-  border-color: var(--cyan, #31d8f5);
-  outline: 2px solid rgba(49, 216, 245, 0.18);
-}
-
-.navbar-chat-btn,
-.navbar-sync-status {
-  color: var(--muted, #91a0b5);
-  background: transparent;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-
-.navbar-chat-btn span,
-.navbar-sync-status strong {
-  margin-left: 5px;
-  color: var(--text, #f8fafc);
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.navbar-chat-btn:hover {
-  color: var(--cyan, #31d8f5);
-}
-
-.navbar-sync-status i,
-.participant-live i {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 5px;
-  border-radius: 50%;
-  background: #36d88b;
-}
-
-.navbar-room-code {
-  padding: 0;
-  color: var(--muted, #91a0b5);
-  background: transparent;
-  border: 0;
-}
-
-.navbar-invite-btn {
-  padding: 8px 12px;
-  color: var(--navy, #07111c);
-  background: var(--cyan, #31d8f5);
-  border-radius: 5px;
-}
-
-.navbar-leave-btn {
-  padding: 7px 12px;
-  color: #ff6b7c;
-  border-color: rgba(255, 107, 124, 0.5);
-  border-radius: 5px;
-}
-
-@media (max-width: 900px) {
-  .navbar {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .navbar-theme-control {
-    order: 3;
-    width: 100%;
-  }
-
-  .navbar-theme-control select {
-    flex: 1;
-    max-width: none;
-  }
-}
+export default Navbar;
