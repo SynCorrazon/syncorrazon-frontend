@@ -1,278 +1,344 @@
-// src/components/VideoPlayer/VideoPlayer.jsx
+/* src/components/VideoPlayer/VideoPlayer.css */
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useToast } from '../common/ToastContainer';
-import useWebRTC from '../../hooks/useWebRTC';
-import useHeartbeat from '../../hooks/useHeartbeat';
-import Navbar from '../Layout/Navbar';
-import ChatOverlay from '../Chat/ChatOverlay';
-import SyncStatus from './SyncStatus';
-import ResyncButton from './ResyncButton';
-import AdBanner from './AdBanner';
-import Loader from '../common/Loader';
-import { createYouTubePlayer, playerControls } from '../../utils/youtube';
-import { getBackendToken, roomApi } from '../../services/api';
-import './VideoPlayer.css';
+.video-player-container {
+  --surface: #0f1724;
+  --surface-raised: #142131;
+  --surface-soft: rgba(15, 23, 36, 0.72);
+  --control: #162333;
+  --line: rgba(148, 163, 184, 0.16);
+  --text: #f8fafc;
+  --muted: #91a0b5;
+  --cyan: #31d8f5;
+  --green: #36d88b;
+  --red: #ef4444;
+  --shadow: rgba(0, 0, 0, 0.25);
+  min-height: 100vh;
+  background: #07111c;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
 
-const VideoPlayer = () => {
-  const { roomId } = useParams();
-  const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  const toast = useToast();
+.video-player-container.theme-minimalist {
+  --surface: #0d1428;
+  --surface-raised: #111c32;
+  --surface-soft: rgba(17, 28, 50, 0.84);
+  --control: #152238;
+  --line: rgba(148, 163, 184, 0.16);
+  --text: #f8fafc;
+  --muted: #91a0b5;
+  --cyan: #31d8f5;
+  --green: #36d88b;
+  --red: #ef4444;
+  background: linear-gradient(180deg, #060d1d 0%, #0c1120 100%);
+}
 
-  const playerRef = useRef(null);
-  const playerContainerRef = useRef(null);
+.video-player-container.theme-glass {
+  --surface: rgba(15, 23, 36, 0.7);
+  --surface-raised: rgba(18, 30, 48, 0.88);
+  --surface-soft: rgba(16, 26, 42, 0.74);
+  --control: rgba(17, 25, 40, 0.8);
+  --line: rgba(190, 214, 255, 0.16);
+  --text: #eaf3ff;
+  --muted: #9bb0d8;
+  --cyan: #31d8f5;
+  --green: #3ae7af;
+  --red: #ff5f6d;
+  background:
+    radial-gradient(circle at 70% 0%, rgba(53, 74, 155, 0.25), transparent 34%),
+    radial-gradient(circle at 10% 70%, rgba(0, 192, 220, 0.12), transparent 30%),
+    #060b16;
+}
 
-  const [videoUrl, setVideoUrl] = useState('');
-  const [theme, setTheme] = useState('minimalist');
-  const [isChatExpanded, setIsChatExpanded] = useState(false);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+.video-player-container.theme-bold {
+  --surface: #0c1227;
+  --surface-raised: #0d1831;
+  --surface-soft: rgba(13, 22, 40, 0.84);
+  --control: #142538;
+  --line: rgba(61, 222, 255, 0.25);
+  --text: #ecf5ff;
+  --muted: #8bc7ff;
+  --cyan: #00e6ff;
+  --green: #32f4ad;
+  --red: #ff3d5d;
+  background: linear-gradient(180deg, #050b16 0%, #0c1224 100%);
+}
 
-  const {
-    isConnected,
-    sendCommand,
-    onCommand,
-    joinRoom,
-    leaveRoom,
-    isLeader,
-  } = useWebRTC(roomId, currentUser);
+.video-player-container.theme-warm {
+  --surface: #1b1230;
+  --surface-raised: #261a38;
+  --surface-soft: rgba(38, 26, 56, 0.84);
+  --control: rgba(67, 46, 86, 0.7);
+  --line: rgba(209, 146, 255, 0.18);
+  --text: #f9f1ff;
+  --muted: #c7a8ff;
+  --cyan: #d5aefb;
+  --green: #aef7c5;
+  --red: #ff8a80;
+  background: linear-gradient(180deg, #110b1d 0%, #190d2d 100%);
+}
 
-  const {
-    syncStatus,
-    startHeartbeat,
-    stopHeartbeat,
-    manualResync,
-    syncStatusMessage,
-  } = useHeartbeat({
-    isLeader,
-    playerRef,
-    sendCommand,
-    onCommand,
-    driftThresholds: {
-      green: 1,
-      yellow: 3,
-      orange: 5,
-    },
-  });
+.video-player-content {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  padding: 28px 26px 36px;
+  width: min(1480px, 100%);
+  margin: 0 auto;
+}
 
-  useEffect(() => {
-    const fetchRoomInfo = async () => {
-      if (!roomId) return;
+.video-player-left {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
-      const token = await getBackendToken(currentUser);
-      if (!token) {
-        toast.error('Please log in again');
-        navigate('/login');
-        return;
-      }
+.video-player-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 320px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 45px var(--shadow);
+}
 
-      try {
-        const data = await roomApi.getRoom(roomId, token);
-        setVideoUrl(data.data?.videoUrl || data.videoUrl || '');
-      } catch (error) {
-        console.error('Error fetching room:', error);
-        toast.error(error.message || 'Failed to load room info');
-      }
-    };
+.video-player-container.theme-glass .video-player-wrapper,
+.video-player-container.theme-glass .video-meta,
+.video-player-container.theme-glass .participant-row,
+.video-player-container.theme-glass .chat-panel,
+.video-player-container.theme-glass .navbar,
+.video-player-container.theme-glass .chat-bubble,
+.video-player-container.theme-glass .navbar-room-code,
+.video-player-container.theme-glass .navbar-button,
+.video-player-container.theme-glass .theme-option {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
 
-    fetchRoomInfo();
-  }, [roomId, toast, navigate, currentUser]);
+.theme-minimalist .video-player-wrapper,
+.theme-minimalist .video-meta,
+.theme-minimalist .participant-row,
+.theme-minimalist .chat-panel,
+.theme-minimalist .navbar,
+.theme-minimalist .chat-bubble,
+.theme-minimalist .navbar-room-code,
+.theme-minimalist .navbar-button,
+.theme-minimalist .theme-option {
+  box-shadow: none;
+}
 
-  useEffect(() => {
-    const initPlayer = async () => {
-      try {
-        const player = await createYouTubePlayer('youtube-player', {
-          height: '100%',
-          width: '100%',
-          videoId: '',
-          playerVars: {
-            controls: 1,
-            rel: 0,
-            modestbranding: 1,
-            iv_load_policy: 3,
-            disablekb: 0,
-            fs: 1,
-          },
-          onReady: () => {
-            setIsPlayerReady(true);
-            setIsLoading(false);
-            toast.info('YouTube player ready! 🎬');
-          },
-          onStateChange: (event) => {
-            if (event.data === 1 && isLeader && isConnected) {
-              sendCommand({ type: 'play', timestamp: playerControls.getCurrentTime(player) });
-            } else if (event.data === 2 && isLeader && isConnected) {
-              sendCommand({ type: 'pause', timestamp: playerControls.getCurrentTime(player) });
-            }
-          },
-          onError: (error) => {
-            console.error('YouTube player error:', error);
-            toast.error('Failed to load YouTube player. Please refresh.');
-          },
-        });
-        playerRef.current = player;
-      } catch (error) {
-        console.error('Error initializing YouTube player:', error);
-        toast.error('Failed to initialize YouTube player.');
-        setIsLoading(false);
-      }
-    };
+.youtube-player {
+  width: 100%;
+  height: 100%;
+}
 
-    initPlayer();
+.video-player-wrapper .sync-status {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
 
-    return () => {
-      if (playerRef.current) {
-        playerControls.destroy(playerRef.current);
-      }
-    };
-  }, []);
+.video-player-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 8px 12px;
+  color: #fff;
+  background: rgba(255, 0, 0, 0.84);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
-  useEffect(() => {
-    if (isPlayerReady && playerRef.current && videoUrl) {
-      const videoId = extractVideoId(videoUrl);
-      if (videoId) {
-        playerControls.loadVideoById(playerRef.current, videoId);
-      }
-    }
-  }, [videoUrl, isPlayerReady]);
+.video-meta,
+.participant-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
 
-  useEffect(() => {
-    if (isPlayerReady && currentUser && roomId) {
-      joinRoom();
-    }
-  }, [isPlayerReady, currentUser, roomId, joinRoom]);
+.video-meta {
+  justify-content: space-between;
+}
 
-  useEffect(() => {
-    if (isConnected && isPlayerReady) {
-      startHeartbeat();
-    } else {
-      stopHeartbeat();
-    }
-  }, [isConnected, isPlayerReady, startHeartbeat, stopHeartbeat]);
+.video-meta > div {
+  min-width: 0;
+  margin-right: auto;
+}
 
-  useEffect(() => {
-    if (!isConnected) return;
+.video-meta h1 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: clamp(18px, 2vw, 26px);
+  line-height: 1.2;
+  font-weight: 800;
+}
 
-    const handleCommand = (command) => {
-      if (!playerRef.current) return;
+.video-meta p {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+}
 
-      switch (command.type) {
-        case 'play':
-          playerControls.play(playerRef.current);
-          break;
-        case 'pause':
-          playerControls.pause(playerRef.current);
-          break;
-        case 'seek':
-          playerControls.seekTo(playerRef.current, command.timestamp);
-          break;
-        default:
-          break;
-      }
-    };
+.video-meta p span {
+  padding: 0 4px;
+}
 
-    return onCommand(handleCommand);
-  }, [isConnected, onCommand]);
+.watching-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--cyan);
+  border: 1px solid rgba(49, 216, 245, 0.18);
+  background: rgba(49, 216, 245, 0.08);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 
-  const extractVideoId = (url) => {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
-      /youtube\.com\/embed\/([^&\n?#]+)/,
-    ];
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
-    return null;
-  };
+.participant-row {
+  min-height: 54px;
+  color: var(--muted);
+  font-size: 12px;
+}
 
-  const handleLeaveRoom = () => {
-    leaveRoom();
-    stopHeartbeat();
-    navigate('/lobby');
-  };
+.participant-avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: #07111c;
+  background: var(--cyan);
+  font-weight: 800;
+}
 
-  const handleResync = () => {
-    manualResync();
-    toast.info('Syncing... 🔄');
-  };
+.participant-row strong {
+  color: var(--text);
+  font-weight: 700;
+}
 
-  if (isLoading) {
-    return <Loader />;
+.participant-play {
+  color: var(--cyan);
+  margin-left: 8px;
+  font-size: 10px;
+}
+
+.participant-drift {
+  margin-left: auto;
+}
+
+.participant-live {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.video-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.video-progress {
+  flex: 1;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.video-progress span {
+  display: block;
+  width: 39.5%;
+  height: 100%;
+  background: var(--red);
+}
+
+.video-player-right {
+  flex: 0 0 330px;
+  min-width: 280px;
+}
+
+.chat-overlay {
+  width: 100%;
+  height: 100%;
+}
+
+.chat-overlay-collapsed {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.chat-overlay-expanded .chat-panel {
+  height: 100%;
+}
+
+.connection-status {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  z-index: 30;
+  backdrop-filter: blur(10px);
+}
+
+.connection-status.connected {
+  color: #36d88b;
+  border-color: rgba(54, 216, 139, 0.3);
+}
+
+.connection-status.disconnected {
+  color: #ff5f6d;
+  border-color: rgba(255, 95, 109, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .video-player-content {
+    flex-direction: column;
+    padding: 18px 16px 24px;
   }
 
-  return (
-    <div className={`video-player-container theme-${theme}`}>
-      <Navbar
-        roomCode={roomId}
-        onLeave={handleLeaveRoom}
-        theme={theme}
-        onThemeChange={setTheme}
-        isChatExpanded={isChatExpanded}
-        onChatToggle={() => setIsChatExpanded((expanded) => !expanded)}
-      />
+  .video-player-right {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: 360px;
+  }
+}
 
-      <div className="video-player-content">
-        <div className="video-player-left">
-          <div className="video-player-wrapper">
-            <div id="youtube-player" ref={playerContainerRef} className="youtube-player" />
-            <SyncStatus status={syncStatus} message={syncStatusMessage} />
-            <div className="video-player-badge">YouTube</div>
-          </div>
+@media (max-width: 640px) {
+  .video-meta {
+    flex-wrap: wrap;
+  }
 
-          <div className="video-meta">
-            <div>
-              <h1>Dune: Part Two - Official Trailer</h1>
-              <p>Warner Bros. Pictures <span>·</span> 23.4M views</p>
-            </div>
-            <span className="watching-badge">Watching together</span>
-            <ResyncButton onClick={handleResync} isConnected={isConnected} />
-          </div>
+  .video-meta > div {
+    flex-basis: 100%;
+  }
 
-          <div className="participant-row">
-            <div className="participant-avatar">A</div>
-            <strong>alex</strong>
-            <span className="participant-play">▶</span>
-            <span>1:24</span>
-            <span className="participant-drift">synced 0.2s</span>
-            <span className="participant-live"><i /> live</span>
-          </div>
+  .participant-drift {
+    display: none;
+  }
 
-          <div className="video-controls" aria-label="Video details">
-            <span>1:24 / 3:32</span>
-            <div className="video-progress"><span /></div>
-          </div>
-
-          <AdBanner isPro={false} />
-        </div>
-
-        {isChatExpanded ? (
-          <div className="video-player-right">
-            <ChatOverlay
-              roomId={roomId}
-              currentUser={currentUser}
-              isExpanded={isChatExpanded}
-              setIsExpanded={setIsChatExpanded}
-            />
-          </div>
-        ) : (
-          <ChatOverlay
-            roomId={roomId}
-            currentUser={currentUser}
-            isExpanded={isChatExpanded}
-            setIsExpanded={setIsChatExpanded}
-          />
-        )}
-      </div>
-
-      <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-        {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
-      </div>
-    </div>
-  );
-};
-
-export default VideoPlayer;
+  .video-player-wrapper {
+    min-height: 220px;
+  }
+}
