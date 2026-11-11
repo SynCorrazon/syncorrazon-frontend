@@ -1,16 +1,17 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoPlaceholder from '../common/LogoPlaceholder';
+import ThemeSelector from './ThemeSelector';
 import './Navbar.css';
 
-const THEME_OPTIONS = [
-  { value: 'minimalist', label: 'A Minimalist', subtitle: 'Clean & focused' },
-  { value: 'glass', label: 'B Glassmorphism', subtitle: 'Blur & depth' },
-  { value: 'bold', label: 'C Bold Accents', subtitle: 'Neon & contrast' },
-  { value: 'warm', label: 'D Warm & Cozy', subtitle: 'Soft & intimate' },
-];
-
-const Navbar = ({ roomCode, onLeave, theme = 'minimalist', onThemeChange, isChatExpanded, onChatToggle }) => {
+const Navbar = ({
+  roomCode,
+  onLeave,
+  isConnected,
+  syncStatusMessage,
+  isChatExpanded,
+  onChatToggle,
+}) => {
   const navigate = useNavigate();
 
   const handleCopyInvite = () => {
@@ -33,38 +34,43 @@ const Navbar = ({ roomCode, onLeave, theme = 'minimalist', onThemeChange, isChat
         <LogoPlaceholder />
       </div>
 
-      {roomCode && (
-        <div className="navbar-theme-group" aria-label="Theme selector">
-          {THEME_OPTIONS.map(({ value, label, subtitle }) => (
-            <button
-              key={value}
-              type="button"
-              className={`theme-option ${theme === value ? 'theme-option-active' : ''}`}
-              onClick={() => onThemeChange?.(value)}
-            >
-              <span className="theme-option-label">{label}</span>
-              <span className="theme-option-subtitle">{subtitle}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
       <div className="navbar-right">
+        <ThemeSelector placement="navbar" />
         {roomCode && (
           <>
-            <button className="navbar-chat-btn" onClick={onChatToggle} aria-pressed={isChatExpanded}>
-              CHAT <span>{isChatExpanded ? 'Expanded' : 'Collapsed'}</span>
+            <button
+              className="navbar-chat-btn"
+              onClick={onChatToggle}
+              aria-pressed={isChatExpanded}
+              aria-label={`${isChatExpanded ? 'Close' : 'Open'} room chat`}
+            >
+              <span className="navbar-chat-label">Chat</span>
+              <span>{isChatExpanded ? 'Open' : 'Closed'}</span>
             </button>
-            <span className="navbar-sync-status"><i /> SYNC <strong>Synced</strong></span>
+            <span
+              className={`navbar-sync-status${
+                isConnected ? ' is-connected' : ''
+              }`}
+              aria-live="polite"
+            >
+              <i /> Sync{' '}
+              <strong>{isConnected ? syncStatusMessage : 'Waiting'}</strong>
+            </span>
             <span className="navbar-room-code">Room: {roomCode}</span>
-            <button className="navbar-button navbar-invite-btn" onClick={handleCopyInvite}>
+            <button
+              className="navbar-button navbar-invite-btn"
+              onClick={handleCopyInvite}
+            >
               Copy Link
             </button>
           </>
         )}
 
         {roomCode && onLeave && (
-          <button className="navbar-button navbar-leave-btn" onClick={handleLeave}>
+          <button
+            className="navbar-button navbar-leave-btn"
+            onClick={handleLeave}
+          >
             Leave Room
           </button>
         )}

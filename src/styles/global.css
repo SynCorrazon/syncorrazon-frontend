@@ -1,5 +1,50 @@
 /* src/styles/global.css */
 
+:root {
+  --theme-background: #0d0d17;
+  --theme-surface: #111321;
+  --theme-raised: #171a2a;
+  --theme-text: #f5f7fb;
+  --theme-muted: #a0a5b4;
+  --theme-accent: #08c8ed;
+  --theme-line: rgba(148, 163, 184, 0.15);
+  --theme-shadow: rgba(0, 0, 0, 0.24);
+  color-scheme: dark;
+}
+
+:root[data-theme='glass'] {
+  --theme-background: #0c0b18;
+  --theme-surface: rgba(27, 27, 47, 0.78);
+  --theme-raised: rgba(37, 35, 60, 0.82);
+  --theme-text: #f3f1ff;
+  --theme-muted: #b6b2cf;
+  --theme-accent: #56d4f2;
+  --theme-line: rgba(190, 184, 255, 0.2);
+  --theme-shadow: rgba(3, 5, 20, 0.34);
+}
+
+:root[data-theme='bold'] {
+  --theme-background: #080b12;
+  --theme-surface: #0d1420;
+  --theme-raised: #121b29;
+  --theme-text: #f4fbff;
+  --theme-muted: #9db8c8;
+  --theme-accent: #00d9ff;
+  --theme-line: rgba(0, 217, 255, 0.24);
+  --theme-shadow: rgba(0, 217, 255, 0.12);
+}
+
+:root[data-theme='warm'] {
+  --theme-background: #110d1a;
+  --theme-surface: #1a1424;
+  --theme-raised: #241a31;
+  --theme-text: #fbf5ff;
+  --theme-muted: #b9a9c8;
+  --theme-accent: #b783f6;
+  --theme-line: rgba(183, 131, 246, 0.2);
+  --theme-shadow: rgba(8, 3, 15, 0.32);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -9,9 +54,10 @@
 html,
 body {
   height: 100%;
-  background-color: #1a1a2e;
-  color: #ffffff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--theme-background);
+  color: var(--theme-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -21,20 +67,20 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #16213e;
+  background: var(--theme-surface);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #00d2ff;
+  background: var(--theme-accent);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00b8e6;
+  background: var(--theme-accent);
 }
 
 a {
-  color: #00d2ff;
+  color: var(--theme-accent);
   text-decoration: none;
 }
 
@@ -66,30 +112,141 @@ select {
 
 input:focus,
 textarea:focus {
-  border-color: #00d2ff;
-  box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.08);
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 3px var(--theme-shadow);
 }
 
 .text-muted {
-  color: #a8a8b3;
+  color: var(--theme-muted);
 }
 
 .text-cyan {
-  color: #00d2ff;
+  color: var(--theme-accent);
 }
 
 .bg-indigo {
-  background-color: #1a1a2e;
+  background-color: var(--theme-background);
 }
 
 .bg-slate {
-  background-color: #16213e;
+  background-color: var(--theme-surface);
 }
 
 .glass {
-  background: rgba(22, 33, 62, 0.85);
+  background: var(--theme-surface);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--theme-line);
+}
+
+[data-theme] .landing-container,
+[data-theme] .landing-page,
+[data-theme] .auth-container,
+[data-theme] .room-lobby-container,
+[data-theme] .room-creation-container,
+[data-theme] .room-container,
+[data-theme] .admin-panel,
+[data-theme] .admin-auth-container,
+[data-theme] .not-found-container {
+  color: var(--theme-text);
+  background: var(--theme-background);
+}
+
+[data-theme] .auth-card,
+[data-theme] .room-card,
+[data-theme] .room-creation-card,
+[data-theme] .feedback-form,
+[data-theme] .admin-section,
+[data-theme] .admin-auth-card,
+[data-theme] .approved-review {
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border-color: var(--theme-line);
+  box-shadow: 0 12px 32px var(--theme-shadow);
+}
+
+[data-theme] .landing-title,
+[data-theme] .room-lobby-header h1,
+[data-theme] .room-card-title,
+[data-theme] .auth-title,
+[data-theme] .admin-header h1,
+[data-theme] .admin-section h2,
+[data-theme] .not-found-title,
+[data-theme] .approved-reviews,
+[data-theme] .approved-reviews h2 {
+  color: var(--theme-text);
+}
+
+[data-theme] .landing-subtitle,
+[data-theme] .landing-footer-text a,
+[data-theme] .auth-footer a,
+[data-theme] .room-btn-create,
+[data-theme] .auth-btn-primary,
+[data-theme] .admin-tab.active,
+[data-theme] .admin-btn-primary,
+[data-theme] .not-found-code,
+[data-theme] .not-found-button,
+[data-theme] .approved-review-rating {
+  color: var(--theme-accent);
+}
+
+[data-theme] .landing-btn-primary,
+[data-theme] .auth-btn-primary,
+[data-theme] .room-btn-create,
+[data-theme] .admin-btn-primary,
+[data-theme] .not-found-button {
+  color: var(--theme-background);
+  background-color: var(--theme-accent);
+}
+
+[data-theme] .landing-btn-primary:hover,
+[data-theme] .auth-btn-primary:hover:not(:disabled),
+[data-theme] .room-btn-create:hover:not(:disabled),
+[data-theme] .admin-btn-primary:hover:not(:disabled),
+[data-theme] .not-found-button:hover {
+  color: var(--theme-background);
+  background-color: var(--theme-accent);
+}
+
+[data-theme] .landing-description,
+[data-theme] .landing-footer-text,
+[data-theme] .room-lobby-subtitle,
+[data-theme] .room-card-description,
+[data-theme] .room-lobby-footer-text,
+[data-theme] .auth-subtitle,
+[data-theme] .auth-footer,
+[data-theme] .admin-subtitle,
+[data-theme] .not-found-message,
+[data-theme] .approved-review strong {
+  color: var(--theme-muted);
+}
+
+[data-theme] .form-group input,
+[data-theme] .join-input,
+[data-theme] .url-input-field,
+[data-theme] .feedback-form-input,
+[data-theme] .admin-input {
+  color: var(--theme-text);
+  background-color: var(--theme-raised);
+  border-color: var(--theme-line);
+}
+
+[data-theme='glass'] .auth-card,
+[data-theme='glass'] .room-card,
+[data-theme='glass'] .room-creation-card,
+[data-theme='glass'] .feedback-form,
+[data-theme='glass'] .admin-section,
+[data-theme='glass'] .approved-review,
+[data-theme='glass'] .theme-selector--floating {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+[data-theme='bold'] .landing-btn-primary,
+[data-theme='bold'] .auth-btn-primary,
+[data-theme='bold'] .room-btn-create,
+[data-theme='bold'] .admin-btn-primary,
+[data-theme='bold'] .not-found-button {
+  box-shadow: 0 0 20px var(--theme-shadow);
 }
 
 .page-enter {

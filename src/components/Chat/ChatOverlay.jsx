@@ -25,7 +25,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../common/ToastContainer';
 import './ChatOverlay.css';
 
-const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
+const ChatOverlay = ({
+  roomId,
+  currentUser,
+  isPeerConnected,
+  isExpanded,
+  setIsExpanded,
+}) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [internalExpanded, setInternalExpanded] = useState(false);
@@ -33,7 +39,8 @@ const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const toast = useToast();
-  const chatExpanded = typeof isExpanded === 'boolean' ? isExpanded : internalExpanded;
+  const chatExpanded =
+    typeof isExpanded === 'boolean' ? isExpanded : internalExpanded;
 
   const toggleChat = () => {
     const nextExpanded = !chatExpanded;
@@ -108,11 +115,32 @@ const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
   };
 
   return (
-    <div className={`chat-overlay ${chatExpanded ? 'chat-overlay-expanded' : 'chat-overlay-collapsed'}`}>
+    <div
+      className={`chat-overlay ${
+        chatExpanded ? 'chat-overlay-expanded' : 'chat-overlay-collapsed'
+      }`}
+    >
       {/* Collapsed state – bubble icon */}
       {!chatExpanded && (
-        <button className="chat-bubble" onClick={toggleChat} aria-label="Open watch chat">
-          <span className="chat-bubble-icon">◌</span>
+        <button
+          className="chat-bubble"
+          onClick={toggleChat}
+          aria-label="Open watch chat"
+        >
+          <svg
+            className="chat-bubble-icon"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z" />
+          </svg>
           {unreadCount > 0 && (
             <span className="chat-bubble-badge">{unreadCount}</span>
           )}
@@ -126,9 +154,17 @@ const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
           <div className="chat-header">
             <div>
               <span className="chat-header-title">Watch Chat</span>
-              <span className="chat-online">2 online</span>
+              <span className="chat-online">
+                {isPeerConnected
+                  ? 'You’re watching together'
+                  : 'Waiting for your friend'}
+              </span>
             </div>
-            <button className="chat-header-close" onClick={toggleChat} aria-label="Close watch chat">
+            <button
+              className="chat-header-close"
+              onClick={toggleChat}
+              aria-label="Close watch chat"
+            >
               ✕
             </button>
           </div>
@@ -146,7 +182,9 @@ const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
                 return (
                   <div
                     key={message.id}
-                    className={`chat-message ${isOwn ? 'chat-message-own' : 'chat-message-other'}`}
+                    className={`chat-message ${
+                      isOwn ? 'chat-message-own' : 'chat-message-other'
+                    }`}
                   >
                     <div className="chat-message-avatar">
                       {message.userName?.[0]?.toUpperCase() || '?'}
@@ -180,7 +218,11 @@ const ChatOverlay = ({ roomId, currentUser, isExpanded, setIsExpanded }) => {
               onChange={(e) => setInput(e.target.value)}
               maxLength={500}
             />
-            <button type="submit" className="chat-send-btn" disabled={!input.trim()}>
+            <button
+              type="submit"
+              className="chat-send-btn"
+              disabled={!input.trim()}
+            >
               Send <span aria-hidden="true">→</span>
             </button>
           </form>

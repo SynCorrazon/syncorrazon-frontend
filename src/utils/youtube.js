@@ -10,7 +10,38 @@
 */
 
 // YouTube API script URL
-const YOUTUBE_API_URL = 'https://www.youtube.com/iframe_api';
+const YOUTUBE_API_URL = "https://www.youtube.com/iframe_api";
+
+export const extractYouTubeVideoId = (value) => {
+  let url;
+  try {
+    url = new URL(value);
+  } catch (error) {
+    if (error.name === "TypeError") return null;
+    throw error;
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+
+  const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
+  let videoId = null;
+
+  if (hostname === "youtu.be") {
+    videoId = url.pathname.split("/").filter(Boolean)[0];
+  } else if (
+    hostname === "youtube.com" ||
+    hostname === "m.youtube.com" ||
+    hostname === "youtube-nocookie.com"
+  ) {
+    if (url.pathname === "/watch") {
+      videoId = url.searchParams.get("v");
+    } else {
+      videoId = url.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)/)?.[1];
+    }
+  }
+
+  return videoId && /^[\w-]{11}$/.test(videoId) ? videoId : null;
+};
 
 // Promise that resolves when the YouTube API is loaded
 let apiLoaded = false;
@@ -31,7 +62,7 @@ export const loadYouTubeAPI = () => {
   // Create a new promise to load the API
   apiLoadingPromise = new Promise((resolve) => {
     // Create script tag
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.src = YOUTUBE_API_URL;
     script.async = true;
 
@@ -44,7 +75,7 @@ export const loadYouTubeAPI = () => {
     // Fallback: if the API doesn't load within 10 seconds, resolve anyway
     const timeout = setTimeout(() => {
       if (!apiLoaded) {
-        console.warn('YouTube API load timeout – continuing anyway');
+        console.warn("YouTube API load timeout – continuing anyway");
         apiLoaded = true;
         resolve();
       }
@@ -69,9 +100,9 @@ export const createYouTubePlayer = (elementId, options = {}) => {
       const checkReady = () => {
         if (window.YT && window.YT.Player) {
           const player = new window.YT.Player(elementId, {
-            height: options.height || '100%',
-            width: options.width || '100%',
-            videoId: options.videoId || '',
+            height: options.height || "100%",
+            width: options.width || "100%",
+            videoId: options.videoId || "",
             playerVars: {
               autoplay: options.autoplay ? 1 : 0,
               controls: options.controls !== undefined ? options.controls : 1,
@@ -91,7 +122,7 @@ export const createYouTubePlayer = (elementId, options = {}) => {
                 if (options.onStateChange) options.onStateChange(event);
               },
               onError: (error) => {
-                console.error('YouTube player error:', error);
+                console.error("YouTube player error:", error);
                 if (options.onError) options.onError(error);
               },
             },

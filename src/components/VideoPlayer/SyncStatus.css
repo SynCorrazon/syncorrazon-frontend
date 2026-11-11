@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px 6px 10px;
+  padding: 7px 14px 7px 10px;
   border-radius: 20px;
   background-color: rgba(22, 33, 62, 0.85);
   backdrop-filter: blur(8px);
@@ -13,7 +13,7 @@
   font-size: 12px;
   font-weight: 500;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   user-select: none;
   pointer-events: none;
 }
@@ -27,7 +27,7 @@
 }
 
 .sync-status-text {
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.3px;
